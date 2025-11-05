@@ -4,6 +4,7 @@ from typing import Mapping
 
 import bblocks_data_importers as bbdata
 import country_converter as coco
+import numpy as np
 import pandas as pd
 
 from pydeflate import imf_exchange, imf_gdp_deflate, set_pydeflate_path
@@ -15,17 +16,12 @@ set_pydeflate_path(PATHS.PYDEFLATE)
 
 def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Attach wide value columns for each configured currency/price combination.
-
-    Instead of duplicating rows for every currency/price pair, this implementation
-    keeps the input shape and appends columns like `value_usd_current` and
-    `value_eur_constant`. This significantly reduces the transient memory
-    footprint compared with the previous long → wide pivot.
     """
 
     if id_column not in df.columns:
         raise KeyError(f"'{id_column}' column not found in DataFrame")
 
-    logger.info("Adding currency and price columns in wide format")
+    logger.info("Adding currency and price columns")
 
     # Separate the numeric series so we can reuse the non-numeric columns without
     # repeatedly copying them.
@@ -35,13 +31,16 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
 
     # Lightweight frame used for conversions; only the columns required by
     # pydeflate are retained to minimise copying.
+    row_ids = np.arange(len(df), dtype=np.int64)
     conversion_input = pd.DataFrame(
         {
+            "_pydeflate_row_id": row_ids,
             id_column: df[id_column].astype("string"),
             "year": df["year"].astype("int32"),
             "value": value_series,
         }
     )
+    row_ids_index = pd.Index(row_ids, name="_pydeflate_row_id")
 
     for currency in CURRENCIES:
         lower = currency.lower()
@@ -59,7 +58,12 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
             id_column=id_column,
             target_value_column=constant_col,
         )
-        result[constant_col] = constant_df[constant_col].astype("float32")
+        constant_series = (
+            constant_df.set_index("_pydeflate_row_id")[constant_col]
+            .reindex(row_ids_index)
+            .astype("float32")
+        )
+        result[constant_col] = constant_series.to_numpy(copy=False)
 
         if currency == "USD":
             continue
@@ -73,7 +77,12 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
             id_column=id_column,
             target_value_column=current_col,
         )
-        result[current_col] = current_df[current_col].astype("float32")
+        current_series = (
+            current_df.set_index("_pydeflate_row_id")[current_col]
+            .reindex(row_ids_index)
+            .astype("float32")
+        )
+        result[current_col] = current_series.to_numpy(copy=False)
 
     value_cols = sorted(c for c in result.columns if c.startswith("value_"))
     base_cols = [c for c in result.columns if c not in value_cols]
