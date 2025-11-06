@@ -1,14 +1,14 @@
 ```js
 import {setCustomColors} from "./components/colors.js"
 import {
-    getUnitLabel, 
-    formatString, 
+    getUnitLabel,
+    formatString,
     generateTitle,
-    generateSubtitle, 
+    generateSubtitle,
     generateFooter,
     generateFileName
 } from "./components/utils.js"
-import {maxTimeRange, productCategories, groupMappings} from "./components/inputValues.js";
+import {maxTimeRange, productCategories, countryOptions, countryGroups} from "./components/inputValues.js";
 import {rangeInput} from "./components/rangeInput.js";
 import {tradePlot, rankTable} from "./components/visuals.js";
 import {downloadPNG, downloadXLSX} from './components/downloads.js';
@@ -20,15 +20,15 @@ setCustomColors();
 
 ```js
 
+const singleStateStore = globalThis.__singleState ??= {lastResult: null};
+
 // USER INPUTS
 
-const countries = Object.keys(groupMappings)
-const groups = Object.values(groupMappings)
+const countries = countryOptions
+const groupNames = countryGroups
 const multiGroups = [
-    "All countries*",
-    ...Object.entries(groupMappings)
-        .filter(([, countries]) => countries.length > 1)
-        .map(([key]) => key)
+    "All countries",
+    ...groupNames
 ];
 
 // Country Input
@@ -72,9 +72,9 @@ const flow = Generators.input(flowInput)
 
 // Category Input
 const categoryInput = Inputs.select(
-    ["All", ...productCategories], {
+    productCategories, {
         label: "Category",
-        value: "All"
+        value: "All products"
     }
 );
 const category = Generators.input(categoryInput)
@@ -110,7 +110,7 @@ const groupInput = Inputs.select(
     {
         label: "Country group",
         sort: true,
-        value: "All countries*"
+        value: "All countries"
     })
 
 const group = Generators.input(groupInput);
@@ -123,20 +123,110 @@ const group = Generators.input(groupInput);
 
 import {singleQueries} from "./components/dataQueries.js"
 
-const data = singleQueries(
-    country, 
-    unit, 
-    prices, 
-    timeRange, 
-    category,
-    flow,
-    group
-)
+const dataState = Generators.observe((notify) => {
+    let cancelled = false;
+    let spinnerTimeout = null;
+    const emptyResult = {
+        worldTradeData: [],
+        partnersData: [],
+        categoriesData: []
+    };
+    const lastResult = singleStateStore.lastResult;
+    const pendingResult = lastResult ?? emptyResult;
 
-const worldTradeData = data.worldTrade
-const partnersData = data.partners
-const categoriesData = data.categories
+    function cleanup() {
+        if (spinnerTimeout != null) {
+            clearTimeout(spinnerTimeout);
+            spinnerTimeout = null;
+        }
+    }
 
+    function emit(state) {
+        if (!cancelled) {
+            notify(state);
+        }
+    }
+
+    emit({
+        ...pendingResult,
+        loading: true,
+        showSpinner: false,
+        error: null,
+        hasData: false
+    });
+
+    const showSpinner = () => {
+        if (cancelled) return;
+        emit({
+            ...pendingResult,
+            loading: true,
+            showSpinner: true,
+            error: null,
+            hasData: false
+        });
+    };
+
+    spinnerTimeout = setTimeout(showSpinner, 0);
+
+    const result = singleQueries(
+        country,
+        unit,
+        prices,
+        timeRange,
+        category,
+        flow,
+        group
+    );
+
+    Promise.all([
+        result.worldTrade,
+        result.partners,
+        result.categories
+    ]).then(([worldTradeData, partnersData, categoriesData]) => {
+        if (cancelled) return;
+        cleanup();
+        const resolved = {worldTradeData, partnersData, categoriesData};
+        singleStateStore.lastResult = resolved;
+
+        emit({
+            ...resolved,
+            loading: false,
+            showSpinner: false,
+            error: null,
+            hasData: true
+        });
+    }).catch((error) => {
+        if (cancelled) return;
+        cleanup();
+        console.error("Failed to load single country data", error);
+        const fallback = lastResult ?? emptyResult;
+
+        emit({
+            ...fallback,
+            loading: false,
+            showSpinner: false,
+            error,
+            hasData: lastResult != null
+        });
+    });
+
+    return () => {
+        cancelled = true;
+        cleanup();
+    };
+});
+```
+
+```js
+const {
+    loading: singleLoading,
+    showSpinner: singleShowSpinner,
+    error: singleError,
+    hasData: singleHasData,
+    worldTradeData = [],
+    partnersData = [],
+    categoriesData = []
+} = dataState;
 ```
 
 <div class="header card">
@@ -147,106 +237,128 @@ const categoriesData = data.categories
         Multi Country
     </a>
     <a class="view-button" href="./faqs">
-        FAQs
+    FAQs
     </a>
 </div>
-
-<div class="card settings">
-    <div class="settings-group">
-        ${countryInput}
-    </div>
-    <div class="settings-group">
-        ${unitInput}
-        ${categoryInput}
-    </div>
-    <div class="settings-group">
-        ${unit === 'gdp' ? html` ` : pricesInput}
-        ${timeRangeInput}
-    </div>
-</div>
+<div>
     ${
-        !data
-        ? html` `
-        : html`
-            <div class="card">
-                <div class="plot-container wide" id="single-plot">
-                    ${generateTitle({country: country, partners: ["the world"], mode: "plot"})}
-                    ${generateSubtitle({partners: [""], category: category, mode: "plot"})}
-                    ${resize((width) => tradePlot(worldTradeData, [""], unit, flow, width, {wide: true}))}
-                    ${await generateFooter({unit: unit, prices: prices, country: country, isGlobalTrade: true})}
-                </div>
-                <div class="download-panel">
-                    ${
-                        Inputs.button(
-                            "Download plot", {
-                                reduce: () => downloadPNG(
-                                    'single-plot',
-                                    generateFileName({country:country, partners:["the world"], category:category, timeRange:timeRange, mode:"plot"})
-                                )
-                            }
-                        )
-                    }
-                    ${
-                        Inputs.button(
-                            "Download data", {
-                                reduce: () => downloadXLSX(
-                                    worldTradeData,
-                                    generateFileName({country:country, partners:["the world"], category:category, timeRange:timeRange, mode:"plot"})
-                                )
-                            }
-                        )
-                    }
-                </div>
-            </div>
+        html`
             <div class="card settings">
                 <div class="settings-group">
-                    ${flowInput}
+                    ${countryInput}
                 </div>
                 <div class="settings-group">
-                    ${groupInput}
+                    ${unitInput}
+                    ${categoryInput}
+                </div>
+                <div class="settings-group">
+                    ${unit === 'gdp' ? html` ` : pricesInput}
+                    ${timeRangeInput}
                 </div>
             </div>
-            <div class="grid grid-cols-2">
-                <div class="card">
-                    <div class="plot-container">
-                        ${generateTitle({country: country, flow: flow, group: group, mode: "table-top-partners"})}
-                        ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-top-partners"})}
-                        ${resize((width) => rankTable(partnersData, flow, 'partner', width))}
-                        ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, group: group, isGlobalTrade: true})}
-                    </div>
-                    <div class="download-panel">
-                        ${
-                            Inputs.button(
-                                "Download data", {
-                                    reduce: () => downloadXLSX(
-                                        partnersData,
-                                        generateFileName({country: country, category:category, timeRange: timeRange, flow: flow, mode: "table-partners"})
-                                    )
-                                }
-                            )
-                        }
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="plot-container">
-                        ${generateTitle({country: country, flow: flow, group: group, mode: "table-top-categories"})}
-                        ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-top-categories"})}
-                        ${resize((width) => rankTable(categoriesData, flow, 'category', width))}
-                        ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, group: group, isGlobalTrade: true})}
-                    </div>
-                    <div class="download-panel">
-                        ${
-                            Inputs.button(
-                                "Download data", {
-                                    reduce: () => downloadXLSX(
-                                        categoriesData,
-                                        generateFileName({country: country, timeRange: timeRange, flow: flow, mode: "table-categories"})
-                                    )
-                                }
-                            )
-                        }
-                    </div>
-                </div>
-            </div>
+            ${
+                singleError
+                    ? html`
+                        <div class="card">
+                            <div class="warning">
+                                Failed to load data. Please try again.
+                            </div>
+                        </div>
+                    `
+                    : singleShowSpinner
+                        ? html`
+                            <div class="card loading-indicator" aria-live="polite">
+                                <div class="spinner" role="status" aria-label="Loading data"></div>
+                                <span>Loading data…</span>
+                            </div>
+                        `
+                        : singleHasData 
+                            ? html`
+                                <div class="card">
+                                    <div class="plot-container wide" id="single-plot">
+                                        ${generateTitle({country: country, partners: ["the rest of the world"], mode: "plot"})}
+                                        ${generateSubtitle({partners: [""], category: category, mode: "plot"})}
+                                        ${resize((width) => tradePlot(worldTradeData, [""], unit, flow, width, {wide: true}))}
+                                        ${await generateFooter({unit: unit, prices: prices, country: country})}
+                                    </div>
+                                    <div class="download-panel">
+                                        ${
+                                            Inputs.button(
+                                                "Download plot", {
+                                                    reduce: () => downloadPNG(
+                                                        'single-plot',
+                                                        generateFileName({country:country, partners:["the world"], category:category, timeRange:timeRange, mode:"plot"})
+                                                    )
+                                                }
+                                            )
+                                        }
+                                        ${
+                                            Inputs.button(
+                                                "Download data", {
+                                                    reduce: () => downloadXLSX(
+                                                        worldTradeData,
+                                                        generateFileName({country:country, partners:["the world"], category:category, timeRange:timeRange, mode:"plot"})
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card settings">
+                                    <div class="settings-group">
+                                        ${flowInput}
+                                    </div>
+                                    <!--
+                                    <div class="settings-group">
+                                        ${groupInput}
+                                    </div>
+                                    -->
+                                </div>
+                                <div class="grid grid-cols-2">
+                                    <div class="card">
+                                        <div class="plot-container">
+                                            ${generateTitle({country: country, flow: flow, group: group, mode: "table-top-partners"})}
+                                            ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-top-partners"})}
+                                            ${resize((width) => rankTable(partnersData, flow, 'partner', width))}
+                                            ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, group: group, isGlobalTrade: true})}
+                                        </div>
+                                        <div class="download-panel">
+                                            ${
+                                                Inputs.button(
+                                                    "Download data", {
+                                                        reduce: () => downloadXLSX(
+                                                            partnersData,
+                                                            generateFileName({country: country, category:category, timeRange: timeRange, flow: flow, mode: "table-partners"})
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="plot-container">
+                                            ${generateTitle({country: country, flow: flow, group: group, mode: "table-top-categories"})}
+                                            ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-top-categories"})}
+                                            ${resize((width) => rankTable(categoriesData, flow, 'category', width))}
+                                            ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, group: group, isGlobalTrade: true})}
+                                        </div>
+                                        <div class="download-panel">
+                                            ${
+                                                Inputs.button(
+                                                    "Download data", {
+                                                        reduce: () => downloadXLSX(
+                                                            categoriesData,
+                                                            generateFileName({country: country, timeRange: timeRange, flow: flow, mode: "table-categories"})
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                            : null
+            }
         `
     }
+</div>
