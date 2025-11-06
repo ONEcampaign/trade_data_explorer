@@ -8,7 +8,7 @@ import {
     generateFooter, 
     generateFileName
 } from "./components/utils.js"
-import {maxTimeRange, productCategories, groupMappings} from "./components/inputValues.js";
+import {maxTimeRange, productCategories, countryOptions} from "./components/inputValues.js";
 import {rangeInput} from "./components/rangeInput.js";
 import {multiSelect} from "./components/multiSelect.js";
 import {tradePlot,  tradeTable} from "./components/visuals.js";
@@ -21,10 +21,15 @@ setCustomColors();
 
 ```js
 
+const multiStateStore = globalThis.__multiState ??= {lastResult: null};
+
+```
+
+```js
+
 // USER INPUTS
 
-const countries = Object.keys(groupMappings)
-const groups = Object.values(groupMappings)
+const countries = countryOptions
 
 // Country
 const countryInput = Inputs.select(
@@ -46,33 +51,20 @@ const partnersInput = multiSelect(
 // Disable options condionally
 function updateOptions() {
 
-    const countryList = groupMappings[countryInput.value]
-    const partnerList = partnersInput.value.flatMap(group => groupMappings[group] || [group]);
-    if (countryList.some(country => partnerList.includes(country))) {
-        partnersInput.value = countries
-            .filter(group => {
-                let elements = groupMappings[group] || [group];
-                return !elements.some(country => countryList.includes(country));
-            })
-            // Pick 5 random items that don't overlap
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 5);
+    const selectedCountry = countryInput.value;
+    const partnerValues = Array.isArray(partnersInput.value) ? partnersInput.value : [];
+
+    if (partnerValues.includes(selectedCountry)) {
+        partnersInput.value = partnerValues.filter((value) => value !== selectedCountry);
     }
 
-    for (const o of partnersInput.querySelectorAll("option")) {
-        const groupList = groupMappings[o.value]
-        if (groupList.some(item => countryList.includes(item))) {
-            o.setAttribute("disabled", "disabled");
-        } else o.removeAttribute("disabled");
+    for (const option of partnersInput.querySelectorAll("option")) {
+        if (option.value === selectedCountry) {
+            option.setAttribute("disabled", "disabled");
+        } else {
+            option.removeAttribute("disabled");
+        }
     }
-
-    for (const o of countryInput.querySelectorAll("option")) {
-        const groupList = groups[o.value]
-        if (groupList.some(item => partnerList.includes(item))) {
-            o.setAttribute("disabled", "disabled");
-        } else o.removeAttribute("disabled");
-    }
-
 }
 
 updateOptions();
@@ -145,7 +137,10 @@ const timeRangeInput = rangeInput(
         enableTextInput: true
     })
 const timeRange = Generators.input(timeRangeInput)
+```
 
+```js
+const isMultiPartner = partners.length > 1
 ```
 
 ```js
@@ -154,21 +149,122 @@ const timeRange = Generators.input(timeRangeInput)
 
 import {multiQueries} from "./components/dataQueries.js"
 
-const data = multiQueries(
-    country,
-    partners,
-    unit,
-    prices,
-    timeRange,
-    category,
-    flow
-)
+const dataState = Generators.observe((notify) => {
+    let cancelled = false;
+    let spinnerTimeout = null;
+    const emptyResult = {
+        plotData: [],
+        tableData: []
+    };
+    const lastResult = multiStateStore.lastResult;
+    const pendingResult = lastResult ?? emptyResult;
 
-const plotData = data.plot
-const tableData = data.table
+    function cleanup() {
+        if (spinnerTimeout != null) {
+            clearTimeout(spinnerTimeout);
+            spinnerTimeout = null;
+        }
+    }
 
-const isMultiPartner = partners.length > 1
+    function emit(state) {
+        if (!cancelled) {
+            notify(state);
+        }
+    }
 
+    if (partners.length === 0) {
+        emit({
+            ...emptyResult,
+            loading: false,
+            showSpinner: false,
+            error: null,
+            hasData: false
+        });
+
+        return () => {
+            cancelled = true;
+            cleanup();
+        };
+    }
+
+    emit({
+        ...pendingResult,
+        loading: true,
+        showSpinner: false,
+        error: null,
+        hasData: false
+    });
+
+    const showSpinner = () => {
+        if (cancelled) return;
+        emit({
+            ...pendingResult,
+            loading: true,
+            showSpinner: true,
+            error: null,
+            hasData: false
+        });
+    };
+
+    spinnerTimeout = setTimeout(showSpinner, 0);
+
+    const result = multiQueries(
+        country,
+        partners,
+        unit,
+        prices,
+        timeRange,
+        category,
+        flow
+    );
+
+    Promise.all([
+        result.plot,
+        result.table
+    ]).then(([plotData, tableData]) => {
+        if (cancelled) return;
+        cleanup();
+        const resolved = {plotData, tableData};
+        multiStateStore.lastResult = resolved;
+
+        emit({
+            ...resolved,
+            loading: false,
+            showSpinner: false,
+            error: null,
+            hasData: true
+        });
+    }).catch((error) => {
+        if (cancelled) return;
+        cleanup();
+        console.error("Failed to load multi-country data", error);
+        const fallback = lastResult ?? emptyResult;
+
+        emit({
+            ...fallback,
+            loading: false,
+            showSpinner: false,
+            error,
+            hasData: lastResult != null
+        });
+    });
+
+    return () => {
+        cancelled = true;
+        cleanup();
+    };
+});
+```
+
+```js
+const {
+    loading: multiLoading,
+    showSpinner: multiShowSpinner,
+    error: multiError,
+    hasData: multiHasData,
+    plotData = [],
+    tableData = []
+} = dataState;
 ```
 
 <div class="header card">
@@ -182,85 +278,107 @@ const isMultiPartner = partners.length > 1
         FAQs
     </a>
 </div>
-
-<div class="card settings">
-    <div class="settings-group">
-        ${countryInput}
-        ${partnersInput}
-    </div>
-    <div class="settings-group">
-        ${unitInput}
-        ${categoryInput}
-    </div>
-    <div class="settings-group">
-        ${unit === "gdp" ? html` ` : pricesInput}
-        ${timeRangeInput}
-        ${isMultiPartner ? flowInput : html` `}
-    </div>
-</div>
-${ 
-    partners.length === 0 
-    ? html`
-        <div class="grid grid-cols-2">
-            <div class="card"> 
-                <div class="warning">
-                    Select at least one partner
+<div>
+    ${
+        html`
+            <div class="card settings">
+                <div class="settings-group">
+                    ${countryInput}
+                    ${partnersInput}
+                </div>
+                <div class="settings-group">
+                    ${unitInput}
+                    ${categoryInput}
+                </div>
+                <div class="settings-group">
+                    ${unit === "gdp" ? html` ` : pricesInput}
+                    ${timeRangeInput}
+                    ${isMultiPartner ? flowInput : html` `}
                 </div>
             </div>
-        </div>
-    `
-    : html`
-        <div class="grid grid-cols-2">
-            <div class="card">
-                <div class="plot-container" id="multi-plot">
-                    ${generateTitle({country: country, partners: partners, flow: flow, mode: "plot"})}
-                    ${generateSubtitle({partners: partners, flow: flow, category: category, mode: "plot"})}
-                    ${resize((width) => tradePlot(plotData, partners, unit, flow, width, {}))}
-                    ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, isMultiPartner: isMultiPartner})}
-                </div>
-                <div class="download-panel">
-                    ${
-                        Inputs.button(
-                            "Download plot", {
-                                reduce: () => downloadPNG(
-                                    'multi-plot',
-                                    generateFileName({country:country, partners:partners, category:category, flow:flow, timeRange:timeRange, mode:"plot"})
-                                )
-                            }
-                        )
-                    }
-                    ${
-                        Inputs.button(
-                            "Download data", {
-                                reduce: () => downloadXLSX(
-                                    plotData,
-                                    generateFileName({country:country, partners:partners, category:category, flow:flow, timeRange:timeRange, mode:"plot"})
-                                )
-                            }
-                        )
-                    }
-                </div>
-            </div>
-            <div class="card">
-                <div class="plot-container" id="multi-table">
-                    ${generateTitle({country: country, partners: partners, flow: flow, mode: "plot"})}
-                    ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-multi"})}
-                    ${resize((width) => tradeTable(tableData, flow, width))}
-                    ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, isMultiPartner: isMultiPartner})}
-                </div>
-                <div class="download-panel">
-                        ${
-                            Inputs.button(
-                                "Download data", {
-                                    reduce: () => downloadXLSX(
-                                        tableData,
-                                        generateFileName({country:country, partners:partners, category:category, flow:flow, timeRange:timeRange, mode:"table-multi"})
-                                    )
-                                }
-                            )
+            ${ 
+                partners.length === 0 
+                ? html`
+                    <div class="grid grid-cols-2">
+                        <div class="card"> 
+                            <div class="warning">
+                                Select at least one partner
+                            </div>
+                        </div>
+                    </div>
+                `
+                : multiError
+                    ? html`
+                        <div class="card">
+                            <div class="warning">
+                                Failed to load data. Please try again.
+                            </div>
+                        </div>
+                    `
+                    : multiShowSpinner
+                        ? html`
+                            <div class="card loading-indicator" aria-live="polite">
+                                <div class="spinner" role="status" aria-label="Loading data"></div>
+                                <span>Loading data…</span>
+                            </div>
+                        `
+                        : multiHasData
+                            ? html`
+                                <div class="grid grid-cols-2">
+                                    <div class="card">
+                                        <div class="plot-container" id="multi-plot">
+                                            ${generateTitle({country: country, partners: partners, flow: flow, mode: "plot"})}
+                                            ${generateSubtitle({partners: partners, flow: flow, category: category, mode: "plot"})}
+                                            ${resize((width) => tradePlot(plotData, partners, unit, flow, width, {}))}
+                                            ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, isMultiPartner: isMultiPartner})}
+                                        </div>
+                                        <div class="download-panel">
+                                            ${
+                                                Inputs.button(
+                                                    "Download plot", {
+                                                        reduce: () => downloadPNG(
+                                                            'multi-plot',
+                                                            generateFileName({country:country, partners:partners, category:category, flow:flow, timeRange:timeRange, mode:"plot"})
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                            ${
+                                                Inputs.button(
+                                                    "Download data", {
+                                                        reduce: () => downloadXLSX(
+                                                            plotData,
+                                                            generateFileName({country:country, partners:partners, category:category, flow:flow, timeRange:timeRange, mode:"plot"})
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="plot-container" id="multi-table">
+                                            ${generateTitle({country: country, partners: partners, flow: flow, mode: "plot"})}
+                                            ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-multi"})}
+                                            ${resize((width) => tradeTable(tableData, flow, width))}
+                                            ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, isMultiPartner: isMultiPartner})}
+                                        </div>
+                                        <div class="download-panel">
+                                                ${
+                                                    Inputs.button(
+                                                        "Download data", {
+                                                            reduce: () => downloadXLSX(
+                                                                tableData,
+                                                                generateFileName({country:country, partners:partners, category:category, flow:flow, timeRange:timeRange, mode:"table-multi"})
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                            : null
                         }
-                </div>
-            </div>
-        </div>
-    `
-}
+                    `
+            }
+</div>

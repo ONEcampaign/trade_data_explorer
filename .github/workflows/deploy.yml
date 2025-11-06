@@ -60,8 +60,36 @@ jobs:
           workload_identity_provider: 'projects/650536812276/locations/global/workloadIdentityPools/github/providers/github'
           service_account: 'github-deployer@one-data-commons.iam.gserviceaccount.com'
 
+      - name: individual-loaders
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          uv run python src/data/scripts/trade.py
+
+      - name: Cache gcloud SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.config/gcloud
+            ~/.cache/google-cloud-sdk
+          key: ${{ runner.os }}-gcloud-${{ hashFiles('**/*.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-gcloud-
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+
+      - name: Upload parquet dataset
+        run: |
+          if [ -d "cdn_files/trade" ]; then
+            echo "Clearing existing trade-explorer dataset in GCS..."
+            gsutil -m rm -r gs://${{ env.BUCKET }}/sources/trade-explorer/** || true
+            echo "Uploading trade explorer dataset to GCS..."
+            gsutil -m rsync -r -d cdn_files/trade gs://${{ env.BUCKET }}/sources/trade-explorer
+          else
+            echo "Warning: cdn_files/trade directory not found"
+            exit 1
+          fi
 
       - name: Deploy to GCS
         run: |
