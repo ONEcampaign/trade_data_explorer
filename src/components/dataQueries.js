@@ -1,7 +1,7 @@
 import {DuckDBClient} from "npm:@observablehq/duckdb";
 
 const BUCKET = "data-apps-one-data";
-const PREFIX = "sources/trade-explorer/reformat-front-end/";
+const PREFIX = "sources/trade-explorer/";
 
 let dbPromise = null;
 async function getDB() {
