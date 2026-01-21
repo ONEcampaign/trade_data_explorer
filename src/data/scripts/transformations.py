@@ -14,6 +14,41 @@ from src.data.config import BASE_YEAR, CURRENCIES, PATHS, TIME_RANGE, logger
 set_pydeflate_path(PATHS.PYDEFLATE)
 
 
+def _series_from_conversion(
+    conversion_df: pd.DataFrame,
+    value_col: str,
+    row_index: pd.Index,
+) -> pd.Series:
+    """Return a Series aligned with the original row order.
+
+    Pydeflate occasionally returns duplicate ``_pydeflate_row_id`` entries when
+    exchange data is missing.  We collapse those duplicates (preferring
+    non-null values) so pandas can reindex without raising.
+    """
+
+    if conversion_df.empty:
+        return pd.Series(index=row_index, dtype="float32")
+
+    duplicate_mask = conversion_df["_pydeflate_row_id"].duplicated(keep=False)
+    if duplicate_mask.any():
+        not_null = conversion_df.loc[conversion_df[value_col].notna()]
+        nulls = conversion_df.loc[conversion_df[value_col].isna()]
+        deduped = (
+            pd.concat([not_null, nulls], ignore_index=True)
+            .drop_duplicates("_pydeflate_row_id", keep="first")
+        )
+        dropped = len(conversion_df) - len(deduped)
+        logger.warning(
+            "Dropped %s duplicate conversion rows while building %s",
+            dropped,
+            value_col,
+        )
+    else:
+        deduped = conversion_df
+
+    return deduped.set_index("_pydeflate_row_id")[value_col].reindex(row_index)
+
+
 def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
     """Attach wide value columns for each configured currency/price combination.
     """
@@ -58,11 +93,9 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
             id_column=id_column,
             target_value_column=constant_col,
         )
-        constant_series = (
-            constant_df.set_index("_pydeflate_row_id")[constant_col]
-            .reindex(row_ids_index)
-            .astype("float32")
-        )
+        constant_series = _series_from_conversion(
+            constant_df, constant_col, row_ids_index
+        ).astype("float32")
         result[constant_col] = constant_series.to_numpy(copy=False)
 
         if currency == "USD":
@@ -77,11 +110,9 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
             id_column=id_column,
             target_value_column=current_col,
         )
-        current_series = (
-            current_df.set_index("_pydeflate_row_id")[current_col]
-            .reindex(row_ids_index)
-            .astype("float32")
-        )
+        current_series = _series_from_conversion(
+            current_df, current_col, row_ids_index
+        ).astype("float32")
         result[current_col] = current_series.to_numpy(copy=False)
 
     value_cols = sorted(c for c in result.columns if c.startswith("value_"))
