@@ -79,6 +79,8 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
 
     for currency in CURRENCIES:
         lower = currency.lower()
+        # IMF cache stores Euro data under FRA, so use that for conversions
+        target_currency = "FRA" if currency == "EUR" else currency
 
         # Constant price conversion (always required, including USD).
         constant_col = f"value_{lower}_constant"
@@ -89,7 +91,7 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
             data=conversion_input,
             base_year=BASE_YEAR,
             source_currency="USA",
-            target_currency=currency,
+            target_currency=target_currency,
             id_column=id_column,
             target_value_column=constant_col,
         )
@@ -106,7 +108,7 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
         current_df = imf_exchange(
             data=conversion_input,
             source_currency="USA",
-            target_currency=currency,
+            target_currency=target_currency,
             id_column=id_column,
             target_value_column=current_col,
         )
