@@ -1,12 +1,5 @@
 ```js
 import "./components/embed.js";
-import {groupMappings} from "./components/inputValues.js";
-
-const sampleInfo = await FileAttachment("./data/scripts/country_aggregates.csv").csv({typed: true});
-
-const NCountries = sampleInfo[0].n_countries
-const GDPShare = sampleInfo[0].gdp_share.toFixed(1)
-const PopulationShare = sampleInfo[0].pop_share.toFixed(1)
 ```
 
 <div class="header card">
@@ -33,12 +26,6 @@ const PopulationShare = sampleInfo[0].pop_share.toFixed(1)
     <p class="base-text">
         <span class="bold">Single Country</span> provides an overview of a country's trade position with the rest of 
         the world.
-    </p> 
-    <p class="base-text">
-        Note that due to data management constraints, <span class='italic'>Single Country</span> provides trade 
-        information for ${NCountries} countries rather than the entire world. While not exhaustive, these countries 
-        account for ${GDPShare}% of global GDP and ${PopulationShare}% of world population, making it a strong 
-        approximation.
     </p>
     <p class="base-text">
         <span class="bold">Multi Country</span> lets you explore trade between a selected country and up to five trading 
@@ -61,17 +48,6 @@ const PopulationShare = sampleInfo[0].pop_share.toFixed(1)
         selected as <span class="italic">Country</span>, you won't be able to select France, EU27 countries, G7 
         countries or G20 countries as <span class="italic">Partner</span>, as these options overlap with France.
     </p>
-    <h2 class="section-header">
-        What countries are included in the different country groups?
-    </h2>
-    <ul class="group-list">
-        ${
-            Object.entries(groupMappings)
-                .filter(([_, countries]) => countries.length > 1)
-                .sort(([a], [b]) => a.localeCompare(b)) // Sort alphabetically by group name
-                .map(([group, countries]) => html`<li><span class="group-name">${group}</span>: ${countries.join(", ")}.</li>`)
-        }
-    </ul>
     <h2 class="section-header">
         Where does the data come from?
     </h2>
