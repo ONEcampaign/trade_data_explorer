@@ -114,6 +114,19 @@ wheels = [
 ]
 
 [[package]]
+name = "cattrs"
+version = "25.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6e/00/2432bb2d445b39b5407f0a90e01b9a271475eea7caf913d7a86bcb956385/cattrs-25.3.0.tar.gz", hash = "sha256:1ac88d9e5eda10436c4517e390a4142d88638fe682c436c93db7ce4a277b884a", size = 509321, upload-time = "2025-10-07T12:26:08.737Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d8/2b/a40e1488fdfa02d3f9a653a61a5935ea08b3c2225ee818db6a76c7ba9695/cattrs-25.3.0-py3-none-any.whl", hash = "sha256:9896e84e0a5bf723bc7b4b68f4481785367ce07a8a02e7e9ee6eb2819bc306ff", size = 70738, upload-time = "2025-10-07T12:26:06.603Z" },
+]
+
+[[package]]
 name = "certifi"
 version = "2025.10.5"
 source = { registry = "https://pypi.org/simple" }
@@ -758,18 +771,21 @@ wheels = [
 
 [[package]]
 name = "oda-reader"
-version = "1.2.2"
+version = "1.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "filelock" },
     { name = "joblib" },
     { name = "openpyxl" },
     { name = "pandas" },
+    { name = "platformdirs" },
     { name = "pyarrow" },
     { name = "requests" },
+    { name = "requests-cache" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/d1/5c0bb2a714ebea7df131b8e87010eab39d0df75878f6785f2a214ff66bb2/oda_reader-1.2.2.tar.gz", hash = "sha256:55be081e1744e75184eca3d09e794fad71958201d08b48fb497aac97a95f3685", size = 35630, upload-time = "2025-06-16T16:15:05.49Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a5/bb/69a6d5fb1165c565e5dde9db387a959932416291235224987c034ac0a1b2/oda_reader-1.4.1.tar.gz", hash = "sha256:cfff97e144ddc69c50e6edaf3d7782c3bf6561960208482ab166f47d94ef0cac", size = 44827, upload-time = "2025-12-19T16:37:00.029Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d8/ec/59338ec9108848dc53f50e7381b9817595bf98f414f4a732100a06828a3b/oda_reader-1.2.2-py3-none-any.whl", hash = "sha256:7f7b854ab1e9bc2cf64b6c63bd56a2ac64cb90ec054518fd01b741fd518cf007", size = 45314, upload-time = "2025-06-16T16:15:04.328Z" },
+    { url = "https://files.pythonhosted.org/packages/26/93/4d10495a0517d7e237cd39dc96e8891f04d560610726d5111e85a909d79d/oda_reader-1.4.1-py3-none-any.whl", hash = "sha256:ac464690026c9cd63bf36a1c82b7111da13f87066becd04ff01d86bd52d36a76", size = 61157, upload-time = "2025-12-19T16:36:58.98Z" },
 ]
 
 [[package]]
@@ -896,11 +912,11 @@ wheels = [
 
 [[package]]
 name = "platformdirs"
-version = "4.4.0"
+version = "4.5.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/23/e8/21db9c9987b0e728855bd57bff6984f67952bea55d6f75e055c46b5383e8/platformdirs-4.4.0.tar.gz", hash = "sha256:ca753cf4d81dc309bc67b0ea38fd15dc97bc30ce419a7f58d13eb3bf14c4febf", size = 21634, upload-time = "2025-08-26T14:32:04.268Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/86/0248f086a84f01b37aaec0fa567b397df1a119f73c16f6c7a9aac73ea309/platformdirs-4.5.1.tar.gz", hash = "sha256:61d5cdcc6065745cdd94f0f878977f8de9437be93de97c1c12f853c9c0cdcbda", size = 21715, upload-time = "2025-12-05T13:52:58.638Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/4b/2028861e724d3bd36227adfa20d3fd24c3fc6d52032f4a93c133be5d17ce/platformdirs-4.4.0-py3-none-any.whl", hash = "sha256:abd01743f24e5287cd7a5db3752faf1a2d65353f38ec26d98e25a6db65958c85", size = 18654, upload-time = "2025-08-26T14:32:02.735Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/28/3bfe2fa5a7b9c46fe7e13c97bda14c895fb10fa2ebf1d0abb90e0cea7ee1/platformdirs-4.5.1-py3-none-any.whl", hash = "sha256:d03afa3963c806a9bed9d5125c8f4cb2fdaf74a55ab60e5d59b3fde758104d31", size = 18731, upload-time = "2025-12-05T13:52:56.823Z" },
 ]
 
 [[package]]
@@ -983,7 +999,7 @@ wheels = [
 
 [[package]]
 name = "pydeflate"
-version = "2.3.0"
+version = "2.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
@@ -997,9 +1013,9 @@ dependencies = [
     { name = "requests" },
     { name = "wbgapi" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3c/1a/a53d3b8e867d3db938bd45aef45892f416ddd1ad63d93d80b3c793354eee/pydeflate-2.3.0.tar.gz", hash = "sha256:e5c9d60cd7ba3450e8a62a6cf3e97b107ec3ddd055888ed4046385890c4240f7", size = 39329, upload-time = "2025-10-05T15:19:19.412Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/09/cc/1661ca602d899247552cf851b3d48e95e152ce7ffd706f6c15afc918619c/pydeflate-2.3.3.tar.gz", hash = "sha256:298607a894cff9fb9786ba85924ff122fd72258b6802a6debf5ef66af1f33bf3", size = 39487, upload-time = "2025-12-07T09:41:36.937Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/02/0d/70ffc73b48f2928870ddc153f6a2cad78a1a076fdb6783e4e3af5c4717f6/pydeflate-2.3.0-py3-none-any.whl", hash = "sha256:54d42657ad55492ca408b30fca07350d0575f367a4aefcd3b549c5a2d59d1074", size = 53949, upload-time = "2025-10-05T15:19:18.014Z" },
+    { url = "https://files.pythonhosted.org/packages/15/fc/52a47b29d97d22fec1289602fe65346dedfffbc797fe3df953f484641a31/pydeflate-2.3.3-py3-none-any.whl", hash = "sha256:a19448158bd5cc17848336391d8461f860421dbf75c984b4685e14b93e8b88f3", size = 54114, upload-time = "2025-12-07T09:41:37.803Z" },
 ]
 
 [[package]]
@@ -1258,6 +1274,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517, upload-time = "2025-08-18T20:46:02.573Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738, upload-time = "2025-08-18T20:46:00.542Z" },
+]
+
+[[package]]
+name = "requests-cache"
+version = "1.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "cattrs" },
+    { name = "platformdirs" },
+    { name = "requests" },
+    { name = "url-normalize" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1a/be/7b2a95a9e7a7c3e774e43d067c51244e61dea8b120ae2deff7089a93fb2b/requests_cache-1.2.1.tar.gz", hash = "sha256:68abc986fdc5b8d0911318fbb5f7c80eebcd4d01bfacc6685ecf8876052511d1", size = 3018209, upload-time = "2024-06-18T17:18:03.774Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4e/2e/8f4051119f460cfc786aa91f212165bb6e643283b533db572d7b33952bd2/requests_cache-1.2.1-py3-none-any.whl", hash = "sha256:1285151cddf5331067baa82598afe2d47c7495a1334bfe7a7d329b43e9fd3603", size = 61425, upload-time = "2024-06-18T17:17:45Z" },
 ]
 
 [[package]]
@@ -1540,6 +1573,7 @@ dependencies = [
     { name = "pandas" },
     { name = "pathlib" },
     { name = "pyarrow" },
+    { name = "pydeflate" },
 ]
 
 [package.dev-dependencies]
@@ -1558,6 +1592,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pathlib", specifier = ">=1.0.1" },
     { name = "pyarrow", specifier = ">=20.0.0,<21.0.0" },
+    { name = "pydeflate", specifier = "==2.3.3" },
 ]
 
 [package.metadata.requires-dev]
@@ -1640,6 +1675,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/7d/a8a765761bbc0c836e397a2e48d498305a865b70a8600fd7a942e85dcf63/Unidecode-1.4.0.tar.gz", hash = "sha256:ce35985008338b676573023acc382d62c264f307c8f7963733405add37ea2b23", size = 200149, upload-time = "2025-04-24T08:45:03.798Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/b7/559f59d57d18b44c6d1250d2eeaa676e028b9c527431f5d0736478a73ba1/Unidecode-1.4.0-py3-none-any.whl", hash = "sha256:c3c7606c27503ad8d501270406e345ddb480a7b5f38827eafe4fa82a137f0021", size = 235837, upload-time = "2025-04-24T08:45:01.609Z" },
+]
+
+[[package]]
+name = "url-normalize"
+version = "2.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "idna" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/80/31/febb777441e5fcdaacb4522316bf2a527c44551430a4873b052d545e3279/url_normalize-2.2.1.tar.gz", hash = "sha256:74a540a3b6eba1d95bdc610c24f2c0141639f3ba903501e61a52a8730247ff37", size = 18846, upload-time = "2025-04-26T20:37:58.553Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/d9/5ec15501b675f7bc07c5d16aa70d8d778b12375686b6efd47656efdc67cd/url_normalize-2.2.1-py3-none-any.whl", hash = "sha256:3deb687587dc91f7b25c9ae5162ffc0f057ae85d22b1e15cf5698311247f567b", size = 14728, upload-time = "2025-04-26T20:37:57.217Z" },
 ]
 
 [[package]]

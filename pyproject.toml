@@ -13,6 +13,7 @@ dependencies = [
     "pandas>=2.3.3",
     "pathlib>=1.0.1",
     "pyarrow>=20.0.0,<21.0.0",
+    "pydeflate==2.3.3",
 ]
 
 [dependency-groups]
