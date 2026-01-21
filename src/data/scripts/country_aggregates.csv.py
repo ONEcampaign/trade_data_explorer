@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
-import bblocks_data_importers as bbdata
+import bblocks.data_importers as bbdata
 import country_converter as coco
 import pandas as pd
 
