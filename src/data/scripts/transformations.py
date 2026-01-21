@@ -2,7 +2,7 @@ import itertools
 from collections.abc import Sequence
 from typing import Mapping
 
-import bblocks_data_importers as bbdata
+import bblocks.data_importers as bbdata
 import country_converter as coco
 import numpy as np
 import pandas as pd
