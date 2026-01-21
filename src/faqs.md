@@ -1,4 +1,5 @@
 ```js
+import "./components/embed.js";
 import {groupMappings} from "./components/inputValues.js";
 
 const sampleInfo = await FileAttachment("./data/scripts/country_aggregates.csv").csv({typed: true});

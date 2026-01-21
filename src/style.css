@@ -440,3 +440,27 @@ table tr > *:nth-child(n+3) {
         gap: 20px !important;
     }
 }
+
+/* === Embed Mode Styles === */
+.embedded #observablehq-header,
+.embedded #observablehq-footer,
+.embedded header,
+.embedded footer,
+.embedded nav,
+.embedded .title-container,
+.embedded .card.header {
+    display: none !important;
+}
+
+.embedded #observablehq-main,
+.embedded main,
+.embedded #observablehq-center {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+}
+
+.embedded,
+.embedded body {
+    background: white !important;
+}

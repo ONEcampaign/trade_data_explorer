@@ -1,4 +1,5 @@
 ```js
+import "./components/embed.js";
 import {setCustomColors} from "./components/colors.js"
 import {
     getUnitLabel, 
