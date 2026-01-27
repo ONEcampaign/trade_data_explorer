@@ -69,7 +69,7 @@ import "./components/embed.js";
     </p>
     <p class="base-text">
         Figures expressed as a share of GDP are based on World Economic Outlook GDP data, retrieved via the
-        <a href="https://github.com/ONEcampaign/bblocks_data_importers">bblocks_data_importers</a>.
+        <a href="https://docs.one.org/tools/bblocks/data-importers/">bblocks_data_importers</a>.
         When data is grouped by year (e.g., in plots), the share of GDP refers to the GDP of the selected country or
         country
         group for that specific year. When grouped by product category (e.g., in tables), it refers to the combined
