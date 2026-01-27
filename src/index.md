@@ -230,7 +230,7 @@ const {
 } = dataState;
 ```
 
-<div class="header card">
+<div class="menu card">
     <a class="view-button active" href="./">
          Single Country
     </a>

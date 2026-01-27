@@ -48,8 +48,8 @@
 }
 
 
-/* Header */
-.card.header {
+/* Menu */
+.card.menu {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
@@ -424,7 +424,7 @@ table tr > *:nth-child(n+3) {
     .title-text {
         font-size: calc(var(--size-xl) * 1.2);
     }
-    .card.header {
+    .card.menu {
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -447,8 +447,7 @@ table tr > *:nth-child(n+3) {
 .embedded header,
 .embedded footer,
 .embedded nav,
-.embedded .title-container,
-.embedded .card.header {
+.embedded .title-container{
     display: none !important;
 }
 

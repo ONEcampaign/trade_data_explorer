@@ -2,7 +2,7 @@
 import "./components/embed.js";
 ```
 
-<div class="header card">
+<div class="menu card">
     <a class="view-button" href="./">
         Single Country
     </a>
