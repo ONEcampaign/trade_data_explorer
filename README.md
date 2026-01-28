@@ -1,6 +1,6 @@
 # Trade Data Explorer
 
-An [interactive tool](https://one-campaign.observablehq.cloud/trade-data-explorer/) to explore trade across countries and regions.
+An [interactive tool](https://data.one.org/tools/dashboards/trade-explorer) to explore trade between countries and regions.
 
 `src` contains the [Observable Framework](https://observablehq.com/framework/) project files.
 
