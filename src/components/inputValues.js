@@ -1,6 +1,6 @@
 export const maxTimeRange = [
   "2002",
-  "2023"
+  "2024"
 ];
 export const countryOptions = [
   "Afghanistan",
