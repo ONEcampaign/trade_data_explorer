@@ -82,7 +82,7 @@ const unitInput = Inputs.select(
         ["Canada Dollars", "cad"],
         ["Euros", "eur"],
         ["British pounds", "gbp"],
-        ["Share of GDP", "gdp"]
+        // ["Share of GDP", "gdp"]
     ]),
     {
         label: "Unit",
