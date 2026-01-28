@@ -50,7 +50,6 @@ const unitInput = Inputs.select(
         ["Canada Dollars", "cad"],
         ["Euros", "eur"],
         ["British pounds", "gbp"],
-        // ["Share of GDP", "gdp"]
     ]),
     {
         label: "Unit"
@@ -253,7 +252,7 @@ const {
                     ${categoryInput}
                 </div>
                 <div class="settings-group">
-                    ${unit === 'gdp' ? html` ` : pricesInput}
+                    ${pricesInput}
                     ${timeRangeInput}
                 </div>
             </div>
