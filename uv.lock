@@ -21,23 +21,6 @@ wheels = [
 ]
 
 [[package]]
-name = "bblocks-data-importers"
-version = "0.4.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "country-converter" },
-    { name = "imf-reader" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pyarrow" },
-    { name = "wbgapi" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4e/49/cdac8bd7afa04468a7e70a3095f11f7ebf991b274be298e1b6650f2eb444/bblocks_data_importers-0.4.1.tar.gz", hash = "sha256:6155d7490b2ae972bd44fb00a314d600b236077a6b226a2797d2edcc8bcb868a", size = 27663, upload-time = "2025-07-16T10:12:20.588Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1f/cc/8ee314556973c438c6ff769cd49f38a6b582a4237b296cb8d348b61a3e01/bblocks_data_importers-0.4.1-py3-none-any.whl", hash = "sha256:1920ba20ae745a4f2418c8632e2491ee4c0d49f9000f3d7f1183ff26c7175596", size = 34700, upload-time = "2025-07-16T10:12:19.511Z" },
-]
-
-[[package]]
 name = "bblocks-places"
 version = "0.0.4"
 source = { registry = "https://pypi.org/simple" }
@@ -194,18 +177,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44", size = 27697, upload-time = "2022-10-25T02:36:22.414Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335, upload-time = "2022-10-25T02:36:20.889Z" },
-]
-
-[[package]]
-name = "country-converter"
-version = "1.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pandas" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/82/38/2ead1f573464121c6ecf7589a30a3245e6f38845e16d9209310dcb5802b9/country_converter-1.3.tar.gz", hash = "sha256:f6a1a14d1f98112ca90a5198f645f4e60bb73840e98f3f733893ff5b617c2f38", size = 61524, upload-time = "2024-11-15T14:45:56.139Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1b/9e/70823cb203d780279e1f4fe6dbd72d3ecf22ed0ab6f2545bcd3989944e75/country_converter-1.3-py3-none-any.whl", hash = "sha256:006958c83adeada455d2f178921fdd051def736259ff250fada912eaf3ca8cf1", size = 47168, upload-time = "2024-11-15T14:45:53.958Z" },
 ]
 
 [[package]]
@@ -1564,11 +1535,8 @@ name = "trade-explorer"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "bblocks-data-importers" },
     { name = "bblocks-places" },
-    { name = "country-converter" },
     { name = "ftfy" },
-    { name = "imf-reader" },
     { name = "oda-data" },
     { name = "pandas" },
     { name = "pathlib" },
@@ -1583,11 +1551,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bblocks-data-importers", specifier = "==0.4.1" },
     { name = "bblocks-places", specifier = ">=0.0.4" },
-    { name = "country-converter", specifier = "==1.3" },
     { name = "ftfy", specifier = ">=6.3.1" },
-    { name = "imf-reader", specifier = "==1.4.1" },
     { name = "oda-data", specifier = ">=2.2.2.post1" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pathlib", specifier = ">=1.0.1" },
