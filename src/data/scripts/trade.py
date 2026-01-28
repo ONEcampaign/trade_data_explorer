@@ -15,7 +15,6 @@ from src.data.scripts.helper_functions import (
 from src.data.scripts.transformations import (
     add_country_groups,
     add_currencies_and_prices,
-    add_share_of_gdp,
     reshape_to_country_flow,
 )
 
@@ -197,8 +196,6 @@ def process_trade_data() -> pd.DataFrame:
     ).fillna(trade_df["importer_iso3"].map(missing_map))
 
     trade_df = add_country_groups(trade_df, membership_df, group_to_iso3)
-
-    trade_df = add_share_of_gdp(trade_df, country_iso3_to_name, group_to_iso3)
 
     trade_df = reshape_to_country_flow(trade_df)
 
