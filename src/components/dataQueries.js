@@ -51,15 +51,7 @@ function buildSQLList(values) {
 }
 
 function unitLabel(unit, prices) {
-  return unit === "gdp" ? "share of gdp" : `${prices} ${unit} million`;
-}
-
-function valueExpression(unit, prices) {
-  if (unit === "gdp") {
-    return "NULL::DOUBLE";
-  }
-  const column = `value_${unit}_${prices}`;
-  return `CAST(${column} AS DOUBLE) / 1e6`;
+  return `${prices} ${unit} million`;
 }
 
 function buildCategoryClause(category) {
@@ -226,13 +218,6 @@ const VALUE_COLUMNS = {
 };
 
 function getValueForUnit(row, unit, prices) {
-  if (unit === "gdp") {
-    const raw = numericOrNull(row?.pct_of_gdp);
-    if (raw == null) {
-      return null;
-    }
-    return raw;
-  }
   const columnGroup = VALUE_COLUMNS[unit];
   if (!columnGroup) {
     return null;
@@ -311,8 +296,7 @@ async function getCountryData(countryList, countrySQL) {
         value_eur_constant,
         value_eur_current,
         value_gbp_constant,
-        value_gbp_current,
-        pct_of_gdp
+        value_gbp_current
       FROM ${parquetClause}
       WHERE country IN (${countrySQL})
     `;
@@ -331,8 +315,7 @@ async function getCountryData(countryList, countrySQL) {
       value_eur_constant: numericOrNull(row?.value_eur_constant),
       value_eur_current: numericOrNull(row?.value_eur_current),
       value_gbp_constant: numericOrNull(row?.value_gbp_constant),
-      value_gbp_current: numericOrNull(row?.value_gbp_current),
-      pct_of_gdp: numericOrNull(row?.pct_of_gdp)
+      value_gbp_current: numericOrNull(row?.value_gbp_current)
     }));
     countryDataCache.set(key, normalized);
     countryDataPending.delete(key);
@@ -363,7 +346,6 @@ function aggregatePartners(rows, context) {
   const yearsLabel = `${timeStart}-${timeEnd}`;
 
   const totals = new Map();
-  const counts = unit === "gdp" ? new Map() : null;
   for (const row of rows) {
     if (row?.flow !== flow) {
       continue;
@@ -383,15 +365,11 @@ function aggregatePartners(rows, context) {
       continue;
     }
     totals.set(partner, (totals.get(partner) ?? 0) + contribution);
-    if (counts) {
-      counts.set(partner, (counts.get(partner) ?? 0) + 1);
-    }
   }
 
   const results = [];
   for (const [partner, total] of totals.entries()) {
-    const averaged = counts ? (counts.get(partner) ? total / counts.get(partner) : null) : total;
-    const rawValue = averaged == null ? null : averaged * multiplier;
+    const rawValue = total == null ? null : total * multiplier;
     const value = rawValue == null ? null : normalizeValue(rawValue);
     if (value == null) {
       continue;
@@ -425,7 +403,6 @@ function aggregateCategories(rows, context) {
   const multiplier = flow === "imports" ? -1 : 1;
 
   const totals = new Map();
-  const counts = unit === "gdp" ? new Map() : null;
   for (const row of rows) {
     if (row?.flow !== flow) {
       continue;
@@ -441,15 +418,11 @@ function aggregateCategories(rows, context) {
       continue;
     }
     totals.set(row.category, (totals.get(row.category) ?? 0) + contribution);
-    if (counts) {
-      counts.set(row.category, (counts.get(row.category) ?? 0) + 1);
-    }
   }
 
   const results = [];
   for (const [categoryName, total] of totals.entries()) {
-    const averaged = counts ? (counts.get(categoryName) ? total / counts.get(categoryName) : null) : total;
-    const rawValue = averaged == null ? null : averaged * multiplier;
+    const rawValue = total == null ? null : total * multiplier;
     const value = rawValue == null ? null : normalizeValue(rawValue);
     if (value == null) {
       continue;
@@ -820,10 +793,6 @@ function buildMultiTableData(rows, context) {
         category: categoryName,
         exportsValue: 0,
         importsValue: 0,
-        exportsPct: 0,
-        importsPct: 0,
-        exportsCount: 0,
-        importsCount: 0
       };
       aggregates.set(key, entry);
     }
@@ -833,34 +802,17 @@ function buildMultiTableData(rows, context) {
       continue;
     }
 
-    if (unit === "gdp") {
-      if (row?.flow === "exports") {
-        entry.exportsPct += contribution;
-        entry.exportsCount += 1;
-      } else if (row?.flow === "imports") {
-        entry.importsPct += contribution;
-        entry.importsCount += 1;
-      }
-    } else {
-      if (row?.flow === "exports") {
-        entry.exportsValue += contribution;
-      } else if (row?.flow === "imports") {
-        entry.importsValue += contribution;
-      }
+    if (row?.flow === "exports") {
+      entry.exportsValue += contribution;
+    } else if (row?.flow === "imports") {
+      entry.importsValue += contribution;
     }
   }
 
   const results = [];
   for (const entry of aggregates.values()) {
-    let exportsRaw;
-    let importsRaw;
-    if (unit === "gdp") {
-      exportsRaw = entry.exportsCount ? entry.exportsPct / entry.exportsCount : 0;
-      importsRaw = entry.importsCount ? entry.importsPct / entry.importsCount : 0;
-    } else {
-      exportsRaw = entry.exportsValue;
-      importsRaw = entry.importsValue;
-    }
+    const exportsRaw = entry.exportsValue;
+    const importsRaw = entry.importsValue;
 
     results.push({
       years: `${timeStart}-${timeEnd}`,

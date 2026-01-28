@@ -1,9 +1,6 @@
-import itertools
 from collections.abc import Sequence
 from typing import Mapping
 
-import bblocks.data_importers as bbdata
-import country_converter as coco
 import numpy as np
 import pandas as pd
 
@@ -128,111 +125,6 @@ def add_currencies_and_prices(df: pd.DataFrame, id_column: str) -> pd.DataFrame:
             result = result.loc[~zero_mask]
 
     return result[base_cols + value_cols]
-
-
-def generate_country_year_df(
-    countries: Sequence[str], time_range: Sequence[int]
-) -> pd.DataFrame:
-    """Create a cartesian product of years and ISO3 codes."""
-    start_year, end_year = time_range[0], time_range[1]
-    years = range(start_year, end_year + 1)
-    combinations = itertools.product(years, countries)
-    result = pd.DataFrame(combinations, columns=["year", "iso3_code"])
-    result["iso3_code"] = result["iso3_code"].str.upper()
-
-    return result
-
-
-def load_format_weo() -> pd.DataFrame:
-    """Retrieve nominal GDP from the IMF WEO dataset and harmonise it."""
-    weo = bbdata.WEO()
-    df_raw = weo.get_data()
-
-    df = df_raw.query("indicator_code == 'NGDPD' & unit == 'U.S. dollars'")[
-        ["year", "entity_name", "value"]
-    ]
-
-    cc = coco.CountryConverter()
-    df["iso3_code"] = cc.pandas_convert(df["entity_name"], to="ISO3")
-
-    df = df.rename(columns={"value": "gdp_current"}).drop(columns="entity_name")
-
-    df["gdp_current"] *= 1_000  # Convert from billions to millions
-
-    return df
-
-
-def add_group_gdp(
-    df: pd.DataFrame,
-    group_to_iso: Mapping[str, Sequence[str]],
-    iso3_to_name: Mapping[str, str],
-) -> pd.DataFrame:
-    """Append GDP totals for each defined country group."""
-
-    df = df.copy()
-    df["iso3_code"] = df["iso3_code"].str.upper()
-    df["exporter"] = df["iso3_code"].map(iso3_to_name).fillna(df["iso3_code"])
-
-    country_frames: list[pd.DataFrame] = [df[["year", "exporter", "gdp_current"]]]
-    for group, members in group_to_iso.items():
-        member_set = {code.upper() for code in members}
-        subset = df[df["iso3_code"].isin(member_set)]
-        if subset.empty:
-            continue
-        group_totals = (
-            subset.groupby("year", as_index=False)["gdp_current"]
-            .sum()
-            .assign(exporter=group)
-        )
-        country_frames.append(group_totals)
-
-    return pd.concat(country_frames, ignore_index=True)
-
-
-def add_share_of_gdp(
-    df: pd.DataFrame,
-    country_iso3_to_name: Mapping[str, str],
-    group_to_iso: Mapping[str, Sequence[str]],
-) -> pd.DataFrame:
-    """Attach GDP totals and compute export/import values as a share of GDP."""
-
-    logger.info("Adding share of GDP columns (exporter & importer)...")
-
-    countries = list(df["exporter_iso3"].unique().dropna())
-
-    country_df = generate_country_year_df(countries, TIME_RANGE)
-    gdp_df = load_format_weo()
-
-    merged_df = country_df.merge(gdp_df, on=["iso3_code", "year"], how="left")
-    groups_df = add_group_gdp(merged_df, group_to_iso, country_iso3_to_name)
-
-    # Share relative to exporter GDP
-    result = df.merge(groups_df, on=["exporter", "year"], how="left")
-    exporter_share = result["value_usd_current"].div(result["gdp_current"])
-    result["pct_of_gdp_exporter"] = exporter_share.mul(100)
-    zero_or_missing = result["gdp_current"].isna() | (result["gdp_current"] == 0)
-    result.loc[zero_or_missing, "pct_of_gdp_exporter"] = pd.NA
-    if "gdp_current" in result.columns:
-        result = result.drop(columns="gdp_current")
-
-    # Share relative to importer GDP
-    importer_gdp = groups_df.rename(
-        columns={
-            "exporter": "importer",
-            "gdp_current": "gdp_current_importer",
-        }
-    )
-    result = result.merge(importer_gdp, on=["importer", "year"], how="left")
-    importer_share = result["value_usd_current"].div(result["gdp_current_importer"])
-    result["pct_of_gdp_importer"] = importer_share.mul(100)
-    zero_or_missing_imp = result["gdp_current_importer"].isna() | (
-        result["gdp_current_importer"] == 0
-    )
-    result.loc[zero_or_missing_imp, "pct_of_gdp_importer"] = pd.NA
-    if "gdp_current_importer" in result.columns:
-        result = result.drop(columns="gdp_current_importer")
-
-    return result
 
 
 def add_country_groups(
@@ -424,26 +316,17 @@ def reshape_to_country_flow(df: pd.DataFrame) -> pd.DataFrame:
     value_cols = [c for c in df.columns if c.startswith("value_")]
     base_cols = [c for c in df.columns if c not in value_cols]
 
-    # Ensure required share columns exist
-    if (
-        "pct_of_gdp_exporter" not in df.columns
-        or "pct_of_gdp_importer" not in df.columns
-    ):
-        raise KeyError("Expected pct_of_gdp_exporter and pct_of_gdp_importer columns")
-
     exports = df[base_cols].copy()
     exports[value_cols] = df[value_cols].to_numpy(copy=True)
     exports["country"] = df["exporter"]
     exports["partner"] = df["importer"]
     exports["flow"] = "exports"
-    exports["pct_of_gdp"] = df["pct_of_gdp_exporter"]
 
     imports = df[base_cols].copy()
     imports[value_cols] = df[value_cols].to_numpy(copy=True)
     imports["country"] = df["importer"]
     imports["partner"] = df["exporter"]
     imports["flow"] = "imports"
-    imports["pct_of_gdp"] = df["pct_of_gdp_importer"]
 
     combined = pd.concat([exports, imports], ignore_index=True)
 
@@ -452,8 +335,6 @@ def reshape_to_country_flow(df: pd.DataFrame) -> pd.DataFrame:
         "exporter",
         "importer",
         "exporter_iso3",
-        "pct_of_gdp_exporter",
-        "pct_of_gdp_importer",
     }
     combined = combined.drop(columns=[c for c in drop_cols if c in combined.columns])
 
@@ -466,7 +347,6 @@ def reshape_to_country_flow(df: pd.DataFrame) -> pd.DataFrame:
         "flow",
         "category",
         *value_cols,
-        "pct_of_gdp",
     ]
     combined = combined[ordered_cols].sort_values(
         ["country", "partner", "flow", "year", "category"], kind="stable"

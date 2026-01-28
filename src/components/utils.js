@@ -95,32 +95,23 @@ export function getLimits(data) {
 
 
 export function getUnitLabel(unit, { long = true, value = "" }) {
-  let prefix, suffix;
+  let prefix = "";
+  let suffix = long ? "Million" : "M";
 
-  if (unit === "gdp") {
-    prefix = "";
-    suffix = "% of GDP";
-  } else {
-    if (long) {
-      suffix = "Million";
-    } else suffix = "M";
-
-    if (unit === "usd") {
-      prefix = "US$";
-    } else if (unit === "eur") {
-      prefix = "€";
-    } else if (unit === "cad") {
-      prefix = "CA$";
-    } else if (unit === "gbp") {
-      prefix = "£";
-    }
+  if (unit === "usd") {
+    prefix = "US$";
+  } else if (unit === "eur") {
+    prefix = "€";
+  } else if (unit === "cad") {
+    prefix = "CA$";
+  } else if (unit === "gbp") {
+    prefix = "£";
   }
 
   if (value === "") {
     return `${prefix} ${suffix}`;
-  } else {
-    return `${prefix}${value} ${suffix}`;
   }
+  return `${prefix}${value} ${suffix}`;
 }
 
 
@@ -259,25 +250,13 @@ export function generateSubtitle({
     const timeString = timeRange[0] === timeRange[1] ? timeRange[0] : `${timeRange[0]}-${timeRange[1]}`
 
     if (mode === "table-top-partners") {
-      if (unit === "gdp") {
-        subtitle.textContent = `${categoryString}; average values between ${timeString}`;
-      } else {
-        subtitle.textContent = `${categoryString}; total values between ${timeString}`;
-      }
+      subtitle.textContent = `${categoryString}; total values between ${timeString}`;
     }
     else if (mode === "table-top-categories") {
-      if (unit === "gdp") {
-        subtitle.textContent = `Product categories; average values between ${timeString}`;
-      } else {
-        subtitle.textContent = `Product categories; total values between ${timeString}`;
-      }
+      subtitle.textContent = `Product categories; total values between ${timeString}`;
     }
     else if (mode === "table-multi") {
-      if (unit === "gdp") {
-        subtitle.innerHTML = `By product category; average values between ${timeString}`;
-      } else {
-        subtitle.innerHTML = `By product category; total values between ${timeString}`;
-      }
+      subtitle.innerHTML = `By product category; total values between ${timeString}`;
     }
   }
 
@@ -340,14 +319,8 @@ function generateNote({
         CEPII. •
     `;
 
-  // GDP-specific note
-  if (unit === "gdp") {
-    text += `<span>All values as a share of ${formatString(country, { genitive: true })} GDP.</span>`;
-  } else {
-    // Prices (constant vs. current)
-    const unitLabel = getUnitLabel(unit, {});
-    text += `<span>All values in ${prices === "constant" ? "constant 2023" : "current"} ${unitLabel}.</span>`;
-  }
+  const unitLabel = getUnitLabel(unit, {});
+  text += `<span>All values in ${prices === "constant" ? "constant 2023" : "current"} ${unitLabel}.</span>`;
 
   if (isMultiPartner) {
     if (flow === "exports") {
@@ -405,4 +378,3 @@ export function generateFileName({
   return text
 
 }
-
