@@ -68,14 +68,6 @@ import "./components/embed.js";
         <a href="https://github.com/jm-rivera/pydeflate">pydeflate</a>.
     </p>
     <p class="base-text">
-        Figures expressed as a share of GDP are based on World Economic Outlook GDP data, retrieved via the
-        <a href="https://docs.one.org/tools/bblocks/data-importers/">bblocks_data_importers</a>.
-        When data is grouped by year (e.g., in plots), the share of GDP refers to the GDP of the selected country or
-        country
-        group for that specific year. When grouped by product category (e.g., in tables), it refers to the combined
-        GDP of the selected country or country group over the chosen time period.
-    </p>
-    <p class="base-text">
         The data preparation scripts are located in the <span style="font-family: monospace">src/data</span>
         directory of the project's <a href="https://github.com/ONEcampaign/trade-explorer"> GitHub
         repository</a>.
