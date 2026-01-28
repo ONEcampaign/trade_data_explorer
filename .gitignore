@@ -182,6 +182,6 @@ src/data/cache/*.csv
 /cdn_files
 
 # Raw data files
-src/data/raw_data/BACI_HS02_V202501/BACI*
-src/data/raw_data/BACI_HS02_V202501/Readme.txt
+src/data/raw_data/BACI_HS02_V202601/BACI*
+src/data/raw_data/BACI_HS02_V202601/Readme.txt
 src/data/raw_data/pydeflate/*

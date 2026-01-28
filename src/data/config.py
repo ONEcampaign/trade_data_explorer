@@ -15,11 +15,11 @@ logger.addHandler(shell_handler)
 logger.setLevel(logging.INFO)
 
 CURRENCIES: list[str] = ["USD", "EUR", "GBP", "CAD"]
-BASE_YEAR: int = 2023  # for currency conversions
+BASE_YEAR: int = 2024  # for currency conversions
 
-TIME_RANGE: list[int] = [2002, 2023]
+TIME_RANGE: list[int] = [2002, 2024]
 
-BACI_VERSION: str = "202501"
+BACI_VERSION: str = "202601"
 
 
 class PATHS:
