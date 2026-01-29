@@ -1,3 +1,4 @@
+@import url("@one-data/observable-themes/styles/fonts.css");
 @import url("@one-data/observable-themes/styles/main.css");
 
 @import url("observablehq:theme-air.css");
@@ -13,4 +14,8 @@
     --size-xl: calc(var(--base-size) * 2);
     --size-xxl: calc(var(--base-size) * 3);
     --size-xxxl: calc(var(--base-size) * 4);
+}
+
+.card {
+    font-family: Colfax, Helvetica, sans-serif;
 }

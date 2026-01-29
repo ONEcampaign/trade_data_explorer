@@ -61,3 +61,7 @@ form[class$="-checkbox"] > div:has(> label:nth-of-type(3):last-of-type) {
     flex-flow: column wrap;
     gap: 10px;
 }
+
+[class^="inputs-"] {
+    font-family: Colfax, Helvetica, sans-serif !important;
+}

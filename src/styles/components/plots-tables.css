@@ -5,6 +5,7 @@
 
 .plot-container {
     padding: 1rem;
+    font-family: 'Italian Plate', Helvetica, sans-serif;
 }
 
 .plot-container.wide {
@@ -14,7 +15,7 @@
 .plot-title {
     font-size: var(--size-xl) !important;
     color: var(--darkGrey) !important;
-    font-weight: bold;
+    font-weight: bold !important;
     margin-bottom: 10px;
 }
 
@@ -57,6 +58,7 @@
 [aria-label="y-axis tick label"] {
     font-size: var(--size-m);
     color: var(--midGrey);
+    font-family: 'Italian Plate', Helvetica, sans-serif;
 }
 
 [aria-label="y-grid"] {
@@ -78,6 +80,11 @@ table tr > *:nth-child(n+3) {
 
 table > thead > tr > th > span {
     margin-right: 10px;
+}
+
+table > thead > tr > th,
+table > tbody > tr > td {
+    font-family: 'Italian Plate', Helvetica, sans-serif;
 }
 
 /* Bottom-panel */
