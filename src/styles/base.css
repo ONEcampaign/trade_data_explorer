@@ -1,0 +1,16 @@
+@import url("@one-data/observable-themes/styles/main.css");
+
+@import url("observablehq:theme-air.css");
+@import url("observablehq:theme-alt.css");
+
+/* ===== Root Variables ===== */
+:root {
+    --base-size: 12px;
+    --size-xs: calc(var(--base-size) * 0.5);
+    --size-s: calc(var(--base-size) * 0.9);
+    --size-m: var(--base-size);
+    --size-l: calc(var(--base-size) * 1.5);
+    --size-xl: calc(var(--base-size) * 2);
+    --size-xxl: calc(var(--base-size) * 3);
+    --size-xxxl: calc(var(--base-size) * 4);
+}
