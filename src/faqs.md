@@ -19,16 +19,15 @@ import "./components/embed.js";
         What is the Trade Explorer?
     </h2>
     <p class="base-text">
-        The <span class="italic">Trade Explorer</span> is a tool to help you analyze trade patterns for different 
-        countries across the world. It provides to options: <span class="italic">Single Country</span> and 
-        <span class="italic">Multi Country</span>
+        The <i>Trade Explorer</i> is a tool to help you analyze trade patterns for different 
+        countries across the world. It provides to options:
     </p> 
     <p class="base-text">
-        <span class="bold">Single Country</span> provides an overview of a country's trade position with the rest of 
+        <b>Single Country</b> provides an overview of a country's trade position with the rest of 
         the world.
     </p>
     <p class="base-text">
-        <span class="bold">Multi Country</span> lets you explore trade between a selected country and up to five trading 
+        <b>Multi Country</b> lets you explore trade between a selected country and up to five trading 
         partners simultaneously. 
     </p>
     <p class="base-text">
@@ -44,9 +43,9 @@ import "./components/embed.js";
     </p>
     <p class="base-text">
         To ensure that the data shown is accurate, certain options will be disabled depending on the selected 
-        <span class="italic">Country</span> and <span class="italic">Partner(s)</span>. For instance, if France is 
-        selected as <span class="italic">Country</span>, you won't be able to select France, EU27 countries, G7 
-        countries or G20 countries as <span class="italic">Partner</span>, as these options overlap with France.
+        <i>Country</i> and <i>Partner(s)</i>. For instance, if France is 
+        selected as <i>Country</i>, you won't be able to select France, EU27 countries, G7 
+        countries or G20 countries as <i>Partner</i>, as these options overlap with France.
     </p>
     <h2 class="section-header">
         Where does the data come from?

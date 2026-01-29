@@ -1,0 +1,45 @@
+/* Responsive design */
+@media (max-width: 1000px) {
+    .settings-group > form,
+    .range-input {
+        width: 200px !important;
+    }
+}
+
+@media (max-width: 800px) {
+    .card.settings {
+        flex-flow: column wrap;
+        gap: 20px;
+    }
+
+    .settings-group {
+        flex-flow: row wrap;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    .logo-section {
+        width: var(--size-l);
+        height: var(--size-l);
+    }
+}
+
+@media (max-width: 600px) {
+    .card.menu {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .card.settings {
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        gap: 20px;
+    }
+
+    .settings-group {
+        gap: 20px !important;
+    }
+}

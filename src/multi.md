@@ -13,7 +13,7 @@ import {maxTimeRange, productCategories, countryOptions} from "./components/inpu
 import {rangeInput} from "./components/rangeInput.js";
 import {multiSelect} from "./components/multiSelect.js";
 import {tradePlot,  tradeTable} from "./components/visuals.js";
-import {downloadPNG, downloadXLSX} from './components/downloads.js';
+import {downloadXLSX} from './components/downloads.js';
 ```
 
 ```js 
@@ -333,16 +333,6 @@ const {
                                             ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, isMultiPartner: isMultiPartner})}
                                         </div>
                                         <div class="download-panel">
-                                            ${
-                                                Inputs.button(
-                                                    "Download plot", {
-                                                        reduce: () => downloadPNG(
-                                                            'multi-plot',
-                                                            generateFileName({country:country, partners:partners, category:category, flow:flow, timeRange:timeRange, mode:"plot"})
-                                                        )
-                                                    }
-                                                )
-                                            }
                                             ${
                                                 Inputs.button(
                                                     "Download data", {

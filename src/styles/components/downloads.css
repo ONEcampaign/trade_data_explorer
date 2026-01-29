@@ -1,0 +1,43 @@
+/* Download buttons */
+.download-panel {
+    padding: 0 0 1rem 1rem;
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+.download-panel > form {
+    width: auto !important;
+}
+
+.download-panel button {
+    background-color: #fff;
+    border: 1px solid #d5d9d9;
+    border-radius: 8px;
+    box-shadow: rgba(213, 217, 217, 0.5) 0 2px 5px 0;
+    box-sizing: border-box;
+    color: #0f1111;
+    cursor: pointer;
+    display: inline-block;
+    font-size: var(--size-m);
+    line-height: var(--size-xl);
+    padding: 5px 10px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+}
+
+.download-panel button:hover {
+    background-color: #f7fafa;
+}
+
+.download-panel button:focus {
+    border-color: #008296;
+    box-shadow: rgba(213, 217, 217, 0.5) 0 2px 5px 0;
+    outline: 0;
+}

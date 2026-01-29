@@ -12,7 +12,7 @@ import {
 import {maxTimeRange, productCategories, countryOptions, countryGroups} from "./components/inputValues.js";
 import {rangeInput} from "./components/rangeInput.js";
 import {tradePlot, rankTable} from "./components/visuals.js";
-import {downloadPNG, downloadXLSX} from './components/downloads.js';
+import {downloadXLSX} from './components/downloads.js';
 ```
 
 ```js 
@@ -282,16 +282,6 @@ const {
                                         ${await generateFooter({unit: unit, prices: prices, country: country})}
                                     </div>
                                     <div class="download-panel">
-                                        ${
-                                            Inputs.button(
-                                                "Download plot", {
-                                                    reduce: () => downloadPNG(
-                                                        'single-plot',
-                                                        generateFileName({country:country, partners:["the world"], category:category, timeRange:timeRange, mode:"plot"})
-                                                    )
-                                                }
-                                            )
-                                        }
                                         ${
                                             Inputs.button(
                                                 "Download data", {

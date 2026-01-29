@@ -96,7 +96,7 @@ export function getLimits(data) {
 
 export function getUnitLabel(unit, { long = true, value = "" }) {
   let prefix = "";
-  let suffix = long ? "Million" : "M";
+  let suffix = long ? "million" : "M";
 
   if (unit === "usd") {
     prefix = "US$";
@@ -320,7 +320,7 @@ function generateNote({
     `;
 
   const unitLabel = getUnitLabel(unit, {});
-  text += `<span>All values in ${prices === "constant" ? "constant 2023" : "current"} ${unitLabel}.</span>`;
+  text += `<span>All values in ${prices === "constant" ? "constant 2024" : "current"} ${unitLabel}.</span>`;
 
   if (isMultiPartner) {
     if (flow === "exports") {
