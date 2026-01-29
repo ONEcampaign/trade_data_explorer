@@ -1,0 +1,142 @@
+import React from "npm:react"
+import {baseViz} from "../js/visuals.js"
+import {getTitle, getSubtitle, getFooterContent} from "../js/textGenerators.js"
+import {logo} from "@one-data/observable-themes/use-images"
+
+export function TradePlot({
+  data = [],
+  unit,
+  flow,
+  country,
+  category,
+  timeRange,
+  prices,
+  loading = false,
+  error = null,
+  emptyMessage = "No data for the selected filters."
+}) {
+  const plotRef = React.useRef(null)
+  const [width, setWidth] = React.useState(0)
+
+  React.useEffect(() => {
+    const node = plotRef.current
+    if (!node || typeof ResizeObserver === "undefined") return
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setWidth(entry.contentRect.width)
+      }
+    })
+    observer.observe(node)
+    setWidth(node.clientWidth)
+    return () => observer.disconnect()
+  }, [])
+
+  React.useEffect(() => {
+    const node = plotRef.current
+    if (!node) return
+    if (!data.length || !width) {
+      node.innerHTML = ""
+      return
+    }
+    const plotNode = baseViz(data, [""], unit, flow, width, {wide: true})
+    node.innerHTML = ""
+    node.appendChild(plotNode)
+    return () => {
+      if (plotNode?.remove) {
+        plotNode.remove()
+      }
+    }
+  }, [data, unit, flow, width])
+
+  const titleText = React.useMemo(
+    () => getTitle({country, partners: ["the rest of the world"], flow, mode: "plot"}),
+    [country, flow]
+  )
+
+  const subtitleStructure = React.useMemo(
+    () => getSubtitle({partners: [""], flow, category, timeRange, mode: "plot"}),
+    [flow, category, timeRange]
+  )
+
+  const footerContent = React.useMemo(
+    () => getFooterContent({unit, prices, country, flow}),
+    [unit, prices, country, flow]
+  )
+
+  const hasData = data.length > 0
+
+  return (
+    <div className="space-y-4">
+      <div className="mb-4 ">
+        <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
+          {titleText}
+        </h2>
+        {subtitleStructure.type === "single-plot" ? (
+          <p className="text-lg text-slate-black" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
+            {subtitleStructure.flows.map((item, index) => {
+              const isLast = index === subtitleStructure.flows.length - 1
+              const prefix = index === 0 ? "" : isLast ? " and " : ", "
+              const colorClass =
+                item.key === "balance"
+                  ? "text-[#A20021] "
+                  : item.key === "exports"
+                    ? "text-[#F7CE5B] font-bold"
+                    : "text-[#1A9BA3] font-bold"
+              return (
+                <React.Fragment key={item.key}>
+                  {prefix}
+                  <span className={colorClass}>{item.label}</span>
+                </React.Fragment>
+              )
+            })}
+            <span>{subtitleStructure.suffix}</span>
+          </p>
+        ) : (
+          <p className="text-sm text-slate-500">{subtitleStructure.text}</p>
+        )}
+      </div>
+      <div className="relative min-h-[260px] w-full rounded-2xl bg-white">
+        <div
+          ref={plotRef}
+          className={`h-full rounded-2xl transition duration-200 ${loading ? "blur-sm" : ""}`}
+        />
+        {loading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/60 backdrop-blur">
+            <span className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900" />
+            <p className="text-sm font-medium text-slate-700">Loading data...</p>
+          </div>
+        )}
+        {!loading && error && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/70 text-sm text-red-600">
+            Unable to load data. Please try different filters.
+          </div>
+        )}
+        {!loading && !error && !hasData && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-2xl text-sm text-slate-500">
+            {emptyMessage}
+          </div>
+        )}
+      </div>
+      <div className="flex flex-row justify-between">
+        <div className="mt-4 text-xs text-slate-500" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
+          <p>
+            Source: <a className="text-slate-800 underline" href={footerContent.source.href} target="_blank" rel="noopener noreferrer">{footerContent.source.label}</a>. {footerContent.source.publisher}.
+          </p>
+          {footerContent.sentences.map((sentence, index) => (
+            <p key={index}>{sentence}</p>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center justify-end">
+          <a
+            href="https://data.one.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-opacity duration-200 hover:opacity-50"
+          >
+            <img src={logo} alt="The ONE Campaign logo" className="h-6 w-auto" />
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
