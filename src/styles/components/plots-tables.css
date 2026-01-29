@@ -65,6 +65,11 @@
     color: var(--midGrey);
 }
 
+[aria-label="tip"] text {
+    font-family: 'Italian Plate', Helvetica, sans-serif;
+    font-size: var(--size-m);
+}
+
 /* Tables */
 [class^="inputs-"][class$="-table"] thead th {
     z-index: 1;

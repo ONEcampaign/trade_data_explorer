@@ -6,7 +6,7 @@
 
 /* ===== Root Variables ===== */
 :root {
-    --base-size: 12px;
+    --base-size: 14px;
     --size-xs: calc(var(--base-size) * 0.5);
     --size-s: calc(var(--base-size) * 0.9);
     --size-m: var(--base-size);
