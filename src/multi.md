@@ -1,19 +1,19 @@
 ```js
-import "./components/embed.js";
-import {setCustomColors} from "./components/colors.js"
+import "./js/embed.js";
+import {setCustomColors} from "./js/colors.js"
 import {
-    getUnitLabel, 
+    getUnitLabel,
     formatString,
     generateTitle,
-    generateSubtitle, 
-    generateFooter, 
+    generateSubtitle,
+    generateFooter,
     generateFileName
-} from "./components/utils.js"
-import {maxTimeRange, productCategories, countryOptions} from "./components/inputValues.js";
-import {rangeInput} from "./components/rangeInput.js";
-import {multiSelect} from "./components/multiSelect.js";
-import {tradePlot,  tradeTable} from "./components/visuals.js";
-import {downloadXLSX} from './components/downloads.js';
+} from "./js/utils.js"
+import {maxTimeRange, productCategories, countryOptions} from "./js/inputValues.js";
+import {rangeInput} from "./js/rangeInput.js";
+import {multiSelect} from "./js/multiSelect.js";
+import {tradePlot, tradeTable} from "./js/visuals.js";
+import {downloadXLSX} from './js/downloads.js';
 ```
 
 ```js 
@@ -147,7 +147,7 @@ const isMultiPartner = partners.length > 1
 
 // DATA  QUERIES
 
-import {multiQueries} from "./components/dataQueries.js"
+import {multiQueries} from "./js/dataQueries.js"
 
 const dataState = Generators.observe((notify) => {
     let cancelled = false;

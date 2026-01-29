@@ -69,7 +69,7 @@ export function rankTable(data, flow, mainColumn, width) {
 }
 
 
-export function tradePlot(data, partners, unit, flow, width, {wide= false}) {
+export function baseViz(data, partners, unit, flow, width, {wide= false}) {
 
     const isPhone = window.screen.width < 800
 
@@ -507,7 +507,7 @@ function hex2rgb(hex, alpha = 1) {
   // Remove the hash if present
   hex = hex.replace(/^#/, "");
 
-  // Parse the hex into RGB components
+  // Parse the hex into RGB js
   let r,
     g,
     b,
@@ -528,6 +528,6 @@ function hex2rgb(hex, alpha = 1) {
     throw new Error("Invalid hex format. Use #RRGGBB or #RRGGBBAA.");
   }
 
-  // Combine the RGBA components into a CSS string
+  // Combine the RGBA js into a CSS string
   return `rgba(${r}, ${g}, ${b}, ${a * alpha})`;
 }

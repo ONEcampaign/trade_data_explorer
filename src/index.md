@@ -1,6 +1,6 @@
 ```js
-import "./components/embed.js";
-import {setCustomColors} from "./components/colors.js"
+import "./js/embed.js";
+import {setCustomColors} from "./js/colors.js"
 import {
     getUnitLabel,
     formatString,
@@ -8,11 +8,11 @@ import {
     generateSubtitle,
     generateFooter,
     generateFileName
-} from "./components/utils.js"
-import {maxTimeRange, productCategories, countryOptions, countryGroups} from "./components/inputValues.js";
-import {rangeInput} from "./components/rangeInput.js";
-import {tradePlot, rankTable} from "./components/visuals.js";
-import {downloadXLSX} from './components/downloads.js';
+} from "./js/utils.js"
+import {maxTimeRange, productCategories, countryOptions, countryGroups} from "./js/inputValues.js";
+import {rangeInput} from "./js/rangeInput.js";
+import {tradePlot, rankTable} from "./js/visuals.js";
+import {downloadXLSX} from './js/downloads.js';
 ```
 
 ```js 
@@ -121,7 +121,7 @@ const group = Generators.input(groupInput);
 
 // DATA  QUERIES
 
-import {singleQueries} from "./components/dataQueries.js"
+import {singleQueries} from "./js/dataQueries.js"
 
 const dataState = Generators.observe((notify) => {
     let cancelled = false;

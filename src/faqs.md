@@ -1,5 +1,5 @@
 ```js
-import "./components/embed.js";
+import "./js/embed.js";
 ```
 
 <div class="menu card">
