@@ -1,9 +1,4 @@
 @import url("./styles/base.css");
-@import url("./styles/components/menu.css");
-@import url("./styles/components/settings.css");
-@import url("./styles/components/status.css");
-@import url("styles/components/plots-tables.css");
-@import url("./styles/components/downloads.css");
-@import url("./styles/components/methodology.css");
-@import url("./styles/responsive.css");
-@import url("./styles/embed.css");
+@import url("./styles/components/range-input.css");
+@import url("./styles/layout.css");
+@import url("./styles/components/plots-tables.css");
