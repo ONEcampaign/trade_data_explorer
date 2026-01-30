@@ -1,354 +1,244 @@
 ```js
-import "./js/embed.js";
-import {setCustomColors} from "./js/colors.js"
-import {
-    getUnitLabel,
-    formatString,
-    generateTitle,
-    generateSubtitle,
-    generateFooter,
-    generateFileName
-} from "./js/utils.js"
-import {maxTimeRange, productCategories, countryOptions, countryGroups} from "./js/inputValues.js";
-import {rangeInput} from "./js/rangeInput.js";
-import {tradePlot, rankTable} from "./js/visuals.js";
-import {downloadXLSX} from './js/downloads.js';
-```
-
-```js 
-setCustomColors();
-```
-
-```js
-
-const singleStateStore = globalThis.__singleState ??= {lastResult: null};
-
-// USER INPUTS
-
-const countries = countryOptions
-const groupNames = countryGroups
-const multiGroups = [
-    "All countries",
-    ...groupNames
-];
-
-// Country Input
-const countryInput = Inputs.select(
-    countries,
-    {
-        label: "Country",
-        sort: true,
-        value: "South Africa"
-    })
-
-const country = Generators.input(countryInput);
-
-// Unit Input
-const unitInput = Inputs.select(
-    new Map([
-        ["US Dollars", "usd"],
-        ["Canada Dollars", "cad"],
-        ["Euros", "eur"],
-        ["British pounds", "gbp"],
-    ]),
-    {
-        label: "Unit"
-    }
-);
-const unit = Generators.input(unitInput)
-
-// Flow input
-const flowInput = Inputs.radio(
-    new Map([
-        ["Exports", "exports"],
-        ["Imports", "imports"]
-    ]),
-    {
-        label: "Trade flow",
-        value: "exports"
-    }
-)
-const flow = Generators.input(flowInput)
-
-// Category Input
-const categoryInput = Inputs.select(
-    productCategories, {
-        label: "Category",
-        value: "All products"
-    }
-);
-const category = Generators.input(categoryInput)
-
-// Prices Input
-const pricesInput = Inputs.radio(
-    new Map([
-        ["Constant", "constant"],
-        ["Current", "current"]
-    ]),
-    {
-        label: "Prices",
-        value: "constant"
-    }
-);
-const prices = Generators.input(pricesInput)
-
-// Time Input
-const timeRangeInput = rangeInput(
-    {
-        min: maxTimeRange[0],
-        max: maxTimeRange[1],
-        step: 1,
-        value: [maxTimeRange[0], maxTimeRange[1]],
-        label: "Time range",
-        enableTextInput: true
-    })
-const timeRange = Generators.input(timeRangeInput)
-
-// Country group input
-const groupInput = Inputs.select(
-    multiGroups,
-    {
-        label: "Country group",
-        sort: true,
-        value: "All countries"
-    })
-
-const group = Generators.input(groupInput);
-
-```
-
-```js
-
-// DATA  QUERIES
-
+import * as React from "npm:react";
+import {NavMenu} from "./components/NavMenu.js";
+import {RangeInput} from "./components/RangeInput.js";
+import {DropdownMenu} from "./components/DropdownMenu.js";
+import {ToggleSwitch} from "./components/ToggleSwitch.js";
+import {TradePlot} from "./components/TradePlot.js";
+import {RankTable} from "./components/RankTable.js";
 import {singleQueries} from "./js/dataQueries.js"
+import {setCustomColors} from "./js/colors.js"
+import {downloadXLSX} from "./js/downloads.js"
+import {generateFileName} from "./js/textGenerators.js"
+import {maxTimeRange, productCategories, countryOptions} from "./js/inputValues.js";
 
-const dataState = Generators.observe((notify) => {
-    let cancelled = false;
-    let spinnerTimeout = null;
-    const emptyResult = {
-        worldTradeData: [],
-        partnersData: [],
-        categoriesData: []
-    };
-    const lastResult = singleStateStore.lastResult;
-    const pendingResult = lastResult ?? emptyResult;
+const UNIT_OPTIONS = [
+    {label: "US Dollars", value: "usd"},
+    {label: "Canada Dollars", value: "cad"},
+    {label: "Euros", value: "eur"},
+    {label: "British pounds", value: "gbp"}
+]
 
-    function cleanup() {
-        if (spinnerTimeout != null) {
-            clearTimeout(spinnerTimeout);
-            spinnerTimeout = null;
-        }
-    }
+const PRICE_TOGGLE_OPTIONS = [
+    {label: "Constant", value: "constant"},
+    {label: "Current", value: "current"}
+]
 
-    function emit(state) {
-        if (!cancelled) {
-            notify(state);
-        }
-    }
+const FLOW_TOGGLE_OPTIONS = [
+    {label: "Imports", value: "imports"},
+    {label: "Exports", value: "exports"}
+]
 
-    emit({
-        ...pendingResult,
-        loading: true,
-        showSpinner: false,
-        error: null,
-        hasData: false
-    });
-
-    const showSpinner = () => {
-        if (cancelled) return;
-        emit({
-            ...pendingResult,
-            loading: true,
-            showSpinner: true,
-            error: null,
-            hasData: false
-        });
-    };
-
-    spinnerTimeout = setTimeout(showSpinner, 0);
-
-    const result = singleQueries(
-        country,
-        unit,
-        prices,
-        timeRange,
-        category,
-        flow,
-        group
-    );
-
-    Promise.all([
-        result.worldTrade,
-        result.partners,
-        result.categories
-    ]).then(([worldTradeData, partnersData, categoriesData]) => {
-        if (cancelled) return;
-        cleanup();
-        const resolved = {worldTradeData, partnersData, categoriesData};
-        singleStateStore.lastResult = resolved;
-
-        emit({
-            ...resolved,
-            loading: false,
-            showSpinner: false,
-            error: null,
-            hasData: true
-        });
-    }).catch((error) => {
-        if (cancelled) return;
-        cleanup();
-        console.error("Failed to load single country data", error);
-        const fallback = lastResult ?? emptyResult;
-
-        emit({
-            ...fallback,
-            loading: false,
-            showSpinner: false,
-            error,
-            hasData: lastResult != null
-        });
-    });
-
-    return () => {
-        cancelled = true;
-        cleanup();
-    };
-});
+setCustomColors()
 ```
 
-```js
-const {
-    loading: singleLoading,
-    showSpinner: singleShowSpinner,
-    error: singleError,
-    hasData: singleHasData,
-    worldTradeData = [],
-    partnersData = [],
-    categoriesData = []
-} = dataState;
-```
+```jsx
+function App() {
 
-<div class="menu card">
-    <a class="view-button active" href="./">
-         Single Country
-    </a>
-    <a class="view-button" href="./multi">
-        Multi Country
-    </a>
-    <a class="view-button" href="./faqs">
-    FAQs
-    </a>
-</div>
-<div>
-    ${
-        html`
-            <div class="card settings">
-                <div class="settings-group">
-                    ${countryInput}
+    const defaultCountry = "South Africa"
+    const defaultTimeRange = React.useMemo(
+        () => [Number(maxTimeRange[1] - 20), Number(maxTimeRange[1])],
+        []
+    )
+
+    // Reactive variables
+    const [selectedCountry, setSelectedCountry] = React.useState(defaultCountry)
+    const [selectedCategory, setSelectedCategory] = React.useState("All products")
+    const [selectedUnit, setSelectedUnit] = React.useState("usd")
+    const [selectedPrices, setSelectedPrices] = React.useState("constant")
+    const [selectedTimeRange, setSelectedTimeRange] = React.useState(defaultTimeRange)
+    const [selectedFlow, setSelectedFlow] = React.useState("exports")
+
+    const [worldTradeData, setWorldTradeData] = React.useState([])
+    const [partnersData, setPartnersData] = React.useState([])
+    const [categoriesData, setCategoriesData] = React.useState([])
+    const [dataStatus, setDataStatus] = React.useState({loading: false, error: null})
+
+
+    React.useEffect(() => {
+        let cancelled = false
+        setDataStatus({loading: true, error: null})
+        const query = singleQueries(
+            selectedCountry,
+            selectedUnit,
+            selectedPrices,
+            selectedTimeRange,
+            selectedCategory,
+            selectedFlow,
+            "All countries"
+        )
+
+        Promise.all([query.worldTrade, query.partners, query.categories])
+            .then(([worldTrade, partners, categories]) => {
+                if (cancelled) return
+                setWorldTradeData(Array.isArray(worldTrade) ? worldTrade : [])
+                setPartnersData(Array.isArray(partners) ? partners : [])
+                setCategoriesData(Array.isArray(categories) ? categories : [])
+                setDataStatus({loading: false, error: null})
+            })
+            .catch((error) => {
+                if (cancelled) return
+                console.error(error)
+                setWorldTradeData([])
+                setPartnersData([])
+                setCategoriesData([])
+                setDataStatus({loading: false, error})
+            })
+
+        return () => {
+            cancelled = true
+        }
+    }, [selectedCountry, selectedUnit, selectedPrices, selectedTimeRange, selectedCategory, selectedFlow])
+
+    const {loading, error} = dataStatus
+
+    const handlePlotDownload = React.useCallback(() => {
+        if (!worldTradeData.length) return
+        downloadXLSX(
+            worldTradeData,
+            generateFileName({
+                country: selectedCountry,
+                partners: ["the world"],
+                category: selectedCategory,
+                flow: selectedFlow,
+                timeRange: selectedTimeRange,
+                mode: "plot"
+            })
+        )
+    }, [worldTradeData, selectedCountry, selectedCategory, selectedFlow, selectedTimeRange])
+
+    const handlePartnersDownload = React.useCallback(() => {
+        if (!partnersData.length) return
+        downloadXLSX(
+            partnersData,
+            generateFileName({
+                country: selectedCountry,
+                category: selectedCategory,
+                timeRange: selectedTimeRange,
+                flow: selectedFlow,
+                mode: "table-partners"
+            })
+        )
+    }, [partnersData, selectedCountry, selectedCategory, selectedTimeRange, selectedFlow])
+
+    const handleCategoriesDownload = React.useCallback(() => {
+        if (!categoriesData.length) return
+        downloadXLSX(
+            categoriesData,
+            generateFileName({
+                country: selectedCountry,
+                timeRange: selectedTimeRange,
+                flow: selectedFlow,
+                mode: "table-categories"
+            })
+        )
+    }, [categoriesData, selectedCountry, selectedTimeRange, selectedFlow])
+
+    return (
+        <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+            <NavMenu currentPage="single-view"/>
+            <section className="p-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                    <div className="flex flex-col gap-6">
+                        <DropdownMenu
+                            label="Country"
+                            options={countryOptions}
+                            value={selectedCountry}
+                            onChange={setSelectedCountry}
+                        />
+                        <DropdownMenu
+                            label="Category"
+                            options={productCategories}
+                            value={selectedCategory}
+                            onChange={setSelectedCategory}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-6">
+                        <DropdownMenu
+                            label="Unit"
+                            options={UNIT_OPTIONS}
+                            value={selectedUnit}
+                            onChange={setSelectedUnit}
+                        />
+                        <ToggleSwitch
+                            label="Prices"
+                            value={selectedPrices}
+                            options={PRICE_TOGGLE_OPTIONS}
+                            onChange={setSelectedPrices}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-6">
+                        <RangeInput
+                            min={Number(maxTimeRange[0])}
+                            max={Number(maxTimeRange[1])}
+                            step={1}
+                            label="Time range"
+                            value={selectedTimeRange}
+                            onChange={setSelectedTimeRange}
+                        />
+                    </div>
                 </div>
-                <div class="settings-group">
-                    ${unitInput}
-                    ${categoryInput}
-                </div>
-                <div class="settings-group">
-                    ${pricesInput}
-                    ${timeRangeInput}
-                </div>
+            </section>
+            <section className="border-2 border-black bg-white p-6">
+                <TradePlot
+                    data={worldTradeData}
+                    unit={selectedUnit}
+                    flow={selectedFlow}
+                    country={selectedCountry}
+                    category={selectedCategory}
+                    timeRange={selectedTimeRange}
+                    prices={selectedPrices}
+                    loading={loading}
+                    error={error}
+                    emptyMessage="No data for the selected filters."
+                    onDownload={handlePlotDownload}
+                />
+            </section>
+            <div className="p-6">
+                <ToggleSwitch
+                    label="Trade flow"
+                    value={selectedFlow}
+                    options={FLOW_TOGGLE_OPTIONS}
+                    onChange={setSelectedFlow}
+                />
             </div>
-            ${
-                singleError
-                    ? html`
-                        <div class="card">
-                            <div class="warning">
-                                Failed to load data. Please try again.
-                            </div>
-                        </div>
-                    `
-                    : singleShowSpinner
-                        ? html`
-                            <div class="card loading-indicator" aria-live="polite">
-                                <div class="spinner" role="status" aria-label="Loading data"></div>
-                                <span>Loading data…</span>
-                            </div>
-                        `
-                        : singleHasData 
-                            ? html`
-                                <div class="card">
-                                    <div class="plot-container wide" id="single-plot">
-                                        ${generateTitle({country: country, partners: ["the rest of the world"], mode: "plot"})}
-                                        ${generateSubtitle({partners: [""], category: category, mode: "plot"})}
-                                        ${resize((width) => tradePlot(worldTradeData, [""], unit, flow, width, {wide: true}))}
-                                        ${await generateFooter({unit: unit, prices: prices, country: country})}
-                                    </div>
-                                    <div class="download-panel">
-                                        ${
-                                            Inputs.button(
-                                                "Download data", {
-                                                    reduce: () => downloadXLSX(
-                                                        worldTradeData,
-                                                        generateFileName({country:country, partners:["the world"], category:category, timeRange:timeRange, mode:"plot"})
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    </div>
-                                </div>
-                                <div class="card settings">
-                                    <div class="settings-group">
-                                        ${flowInput}
-                                    </div>
-                                    <!--
-                                    <div class="settings-group">
-                                        ${groupInput}
-                                    </div>
-                                    -->
-                                </div>
-                                <div class="grid grid-cols-2">
-                                    <div class="card">
-                                        <div class="plot-container">
-                                            ${generateTitle({country: country, flow: flow, group: group, mode: "table-top-partners"})}
-                                            ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-top-partners"})}
-                                            ${resize((width) => rankTable(partnersData, flow, 'partner', width))}
-                                            ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, group: group, isGlobalTrade: true})}
-                                        </div>
-                                        <div class="download-panel">
-                                            ${
-                                                Inputs.button(
-                                                    "Download data", {
-                                                        reduce: () => downloadXLSX(
-                                                            partnersData,
-                                                            generateFileName({country: country, category:category, timeRange: timeRange, flow: flow, mode: "table-partners"})
-                                                        )
-                                                    }
-                                                )
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        <div class="plot-container">
-                                            ${generateTitle({country: country, flow: flow, group: group, mode: "table-top-categories"})}
-                                            ${generateSubtitle({category: category, timeRange: timeRange, unit: unit, mode: "table-top-categories"})}
-                                            ${resize((width) => rankTable(categoriesData, flow, 'category', width))}
-                                            ${await generateFooter({unit: unit, prices: prices, country: country, flow: flow, group: group, isGlobalTrade: true})}
-                                        </div>
-                                        <div class="download-panel">
-                                            ${
-                                                Inputs.button(
-                                                    "Download data", {
-                                                        reduce: () => downloadXLSX(
-                                                            categoriesData,
-                                                            generateFileName({country: country, timeRange: timeRange, flow: flow, mode: "table-categories"})
-                                                        )
-                                                    }
-                                                )
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            `
-                            : null
-            }
-        `
-    }
-</div>
+            <div className="grid gap-6 md:grid-cols-2">
+                <RankTable
+                    data={partnersData}
+                    flow={selectedFlow}
+                    mainColumn="partner"
+                    mode="table-top-partners"
+                    country={selectedCountry}
+                    category={selectedCategory}
+                    timeRange={selectedTimeRange}
+                    unit={selectedUnit}
+                    prices={selectedPrices}
+                    group="All countries"
+                    loading={loading}
+                    error={error}
+                    emptyMessage="No partner data for the selected filters."
+                    onDownload={handlePartnersDownload}
+                />
+                <RankTable
+                    data={categoriesData}
+                    flow={selectedFlow}
+                    mainColumn="category"
+                    mode="table-top-categories"
+                    country={selectedCountry}
+                    category={selectedCategory}
+                    timeRange={selectedTimeRange}
+                    unit={selectedUnit}
+                    prices={selectedPrices}
+                    group="All countries"
+                    loading={loading}
+                    error={error}
+                    emptyMessage="No category data for the selected filters."
+                    onDownload={handleCategoriesDownload}
+                />
+            </div>
+        </div>
+    )
+}
+
+display(<App/>)
+```
