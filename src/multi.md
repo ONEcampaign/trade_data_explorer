@@ -10,9 +10,10 @@ import {TradePlot} from "./components/TradePlot.js";
 import {RankTable} from "./components/RankTable.js";
 import {multiQueries} from "./js/dataQueries.js";
 import {setCustomColors} from "./js/colors.js";
-import {downloadXLSX} from "./js/downloads.js";
-import {generateFileName} from "./js/textGenerators.js";
-import {maxTimeRange, productCategories, countryOptions} from "./js/inputValues.js";
+import {productCategories, countryOptions, maxTimeRange} from "./js/inputValues.js";
+import {UNIT_OPTIONS, MULTI_FLOW_OPTIONS, PRICE_TOGGLE_OPTIONS} from "./js/options.js";
+import {downloadTradeData} from "./js/downloadHelpers.js";
+import {DEFAULT_MULTI_COUNTRY, DEFAULT_MULTI_PARTNERS, getMultiDefaultTimeRange} from "./js/stateDefaults.js";
 ```
 
 ```js
@@ -20,32 +21,16 @@ setCustomColors();
 ```
 
 ```jsx
-const UNIT_OPTIONS = [
-    {label: "US Dollars", value: "usd"},
-    {label: "Canada Dollars", value: "cad"},
-    {label: "Euros", value: "eur"},
-    {label: "British pounds", value: "gbp"}
-];
-
-const FLOW_OPTIONS = [
-    {label: "Balance", value: "balance"},
-    {label: "Exports", value: "exports"},
-    {label: "Imports", value: "imports"}
-];
-
 const MULTI_CATEGORY_OPTIONS = [
     {label: "All products", value: "All"},
     ...productCategories.filter((item) => item !== "All products").map((item) => ({label: item, value: item}))
 ];
 
 function App() {
-    const defaultTimeRange = React.useMemo(
-        () => [Number(maxTimeRange[1]) - 10, Number(maxTimeRange[1])],
-        []
-    );
+    const defaultTimeRange = React.useMemo(() => getMultiDefaultTimeRange(), []);
 
-    const [selectedCountry, setSelectedCountry] = React.useState("Kenya");
-    const [selectedPartners, setSelectedPartners] = React.useState(["Canada"]);
+    const [selectedCountry, setSelectedCountry] = React.useState(DEFAULT_MULTI_COUNTRY);
+    const [selectedPartners, setSelectedPartners] = React.useState(DEFAULT_MULTI_PARTNERS);
     const [selectedUnit, setSelectedUnit] = React.useState("usd");
     const [selectedCategory, setSelectedCategory] = React.useState("All");
     const [selectedPrices, setSelectedPrices] = React.useState("constant");
@@ -110,6 +95,10 @@ function App() {
     const {loading, error} = dataStatus;
     const hasPartners = selectedPartners.length > 0;
     const isMultiPartner = selectedPartners.length > 1;
+    const orderedPartners = React.useMemo(
+        () => [...selectedPartners].sort((a, b) => String(a).localeCompare(String(b))),
+        [selectedPartners]
+    );
 
     const partnerOptions = React.useMemo(() => {
         const ready = availablePartners.length > 0;
@@ -123,34 +112,26 @@ function App() {
     }, [availablePartners, selectedPartners]);
 
     const handlePlotDownload = React.useCallback(() => {
-        if (!plotData.length || !selectedPartners.length) return;
-        downloadXLSX(
-            plotData,
-            generateFileName({
-                country: selectedCountry,
-                partners: selectedPartners,
-                category: selectedCategory,
-                flow: selectedFlow,
-                timeRange: selectedTimeRange,
-                mode: "plot"
-            })
-        );
-    }, [plotData, selectedCountry, selectedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
+        downloadTradeData(plotData, {
+            country: selectedCountry,
+            partners: orderedPartners,
+            category: selectedCategory,
+            flow: selectedFlow,
+            timeRange: selectedTimeRange,
+            mode: "plot"
+        });
+    }, [plotData, selectedCountry, orderedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
 
     const handleTableDownload = React.useCallback(() => {
-        if (!tableData.length || !selectedPartners.length) return;
-        downloadXLSX(
-            tableData,
-            generateFileName({
-                country: selectedCountry,
-                partners: selectedPartners,
-                category: selectedCategory,
-                flow: selectedFlow,
-                timeRange: selectedTimeRange,
-                mode: "table-multi"
-            })
-        );
-    }, [tableData, selectedCountry, selectedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
+        downloadTradeData(tableData, {
+            country: selectedCountry,
+            partners: orderedPartners,
+            category: selectedCategory,
+            flow: selectedFlow,
+            timeRange: selectedTimeRange,
+            mode: "table-multi"
+        });
+    }, [tableData, selectedCountry, orderedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
 
     return (
         <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
@@ -189,19 +170,16 @@ function App() {
                         <ToggleSwitch
                             label="Prices"
                             value={selectedPrices}
-                            options={[
-                                {label: "Constant", value: "constant"},
-                                {label: "Current", value: "current"}
-                            ]}
+                            options={PRICE_TOGGLE_OPTIONS}
                             onChange={setSelectedPrices}
                         />
                         <SegmentedToggle
                             label="Trade flow"
                             value={selectedFlow}
-                            options={FLOW_OPTIONS}
+                            options={MULTI_FLOW_OPTIONS}
                             onChange={setSelectedFlow}
                             disabled={!isMultiPartner}
-                            disabledReason="Select more than one country to filter trade flow"
+                            disabledReason="Select more than one partner to filter trade flow"
                         />
                     </div>
                     <div className="flex flex-col gap-6">
@@ -218,7 +196,7 @@ function App() {
             </section>
             {!hasPartners ? (
                 <div className="rounded-2xl border border-amber-300 bg-amber-50 p-6 text-amber-900">
-                    Select at least one partner to view trade comparisons.
+                    Select at least one partner to view data.
                 </div>
             ) : (
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -231,7 +209,7 @@ function App() {
                             category={selectedCategory}
                             timeRange={selectedTimeRange}
                             prices={selectedPrices}
-                            partners={selectedPartners}
+                            partners={orderedPartners}
                             isMultiPartner={isMultiPartner}
                             wide={false}
                             loading={loading}
@@ -250,7 +228,7 @@ function App() {
                         timeRange={selectedTimeRange}
                         unit={selectedUnit}
                         prices={selectedPrices}
-                        partners={selectedPartners}
+                        partners={orderedPartners}
                         isMultiPartner={isMultiPartner}
                         multiMode={true}
                         loading={loading}

@@ -8,26 +8,10 @@ import {TradePlot} from "./components/TradePlot.js";
 import {RankTable} from "./components/RankTable.js";
 import {singleQueries} from "./js/dataQueries.js"
 import {setCustomColors} from "./js/colors.js"
-import {downloadXLSX} from "./js/downloads.js"
-import {generateFileName} from "./js/textGenerators.js"
-import {maxTimeRange, productCategories, countryOptions} from "./js/inputValues.js";
-
-const UNIT_OPTIONS = [
-    {label: "US Dollars", value: "usd"},
-    {label: "Canada Dollars", value: "cad"},
-    {label: "Euros", value: "eur"},
-    {label: "British pounds", value: "gbp"}
-]
-
-const PRICE_TOGGLE_OPTIONS = [
-    {label: "Constant", value: "constant"},
-    {label: "Current", value: "current"}
-]
-
-const FLOW_TOGGLE_OPTIONS = [
-    {label: "Imports", value: "imports"},
-    {label: "Exports", value: "exports"}
-]
+import {productCategories, countryOptions, maxTimeRange} from "./js/inputValues.js";
+import {UNIT_OPTIONS, PRICE_TOGGLE_OPTIONS, SINGLE_FLOW_OPTIONS} from "./js/options.js"
+import {downloadTradeData} from "./js/downloadHelpers.js"
+import {DEFAULT_SINGLE_COUNTRY, getSingleDefaultTimeRange} from "./js/stateDefaults.js"
 
 setCustomColors()
 ```
@@ -35,14 +19,10 @@ setCustomColors()
 ```jsx
 function App() {
 
-    const defaultCountry = "South Africa"
-    const defaultTimeRange = React.useMemo(
-        () => [Number(maxTimeRange[1] - 20), Number(maxTimeRange[1])],
-        []
-    )
+    const defaultTimeRange = React.useMemo(() => getSingleDefaultTimeRange(), [])
 
     // Reactive variables
-    const [selectedCountry, setSelectedCountry] = React.useState(defaultCountry)
+    const [selectedCountry, setSelectedCountry] = React.useState(DEFAULT_SINGLE_COUNTRY)
     const [selectedCategory, setSelectedCategory] = React.useState("All products")
     const [selectedUnit, setSelectedUnit] = React.useState("usd")
     const [selectedPrices, setSelectedPrices] = React.useState("constant")
@@ -93,45 +73,33 @@ function App() {
     const {loading, error} = dataStatus
 
     const handlePlotDownload = React.useCallback(() => {
-        if (!worldTradeData.length) return
-        downloadXLSX(
-            worldTradeData,
-            generateFileName({
-                country: selectedCountry,
-                partners: ["the world"],
-                category: selectedCategory,
-                flow: selectedFlow,
-                timeRange: selectedTimeRange,
-                mode: "plot"
-            })
-        )
+        downloadTradeData(worldTradeData, {
+            country: selectedCountry,
+            partners: ["the world"],
+            category: selectedCategory,
+            flow: selectedFlow,
+            timeRange: selectedTimeRange,
+            mode: "plot"
+        })
     }, [worldTradeData, selectedCountry, selectedCategory, selectedFlow, selectedTimeRange])
 
     const handlePartnersDownload = React.useCallback(() => {
-        if (!partnersData.length) return
-        downloadXLSX(
-            partnersData,
-            generateFileName({
-                country: selectedCountry,
-                category: selectedCategory,
-                timeRange: selectedTimeRange,
-                flow: selectedFlow,
-                mode: "table-partners"
-            })
-        )
+        downloadTradeData(partnersData, {
+            country: selectedCountry,
+            category: selectedCategory,
+            timeRange: selectedTimeRange,
+            flow: selectedFlow,
+            mode: "table-partners"
+        })
     }, [partnersData, selectedCountry, selectedCategory, selectedTimeRange, selectedFlow])
 
     const handleCategoriesDownload = React.useCallback(() => {
-        if (!categoriesData.length) return
-        downloadXLSX(
-            categoriesData,
-            generateFileName({
-                country: selectedCountry,
-                timeRange: selectedTimeRange,
-                flow: selectedFlow,
-                mode: "table-categories"
-            })
-        )
+        downloadTradeData(categoriesData, {
+            country: selectedCountry,
+            timeRange: selectedTimeRange,
+            flow: selectedFlow,
+            mode: "table-categories"
+        })
     }, [categoriesData, selectedCountry, selectedTimeRange, selectedFlow])
 
     return (
@@ -198,7 +166,7 @@ function App() {
                 <ToggleSwitch
                     label="Trade flow"
                     value={selectedFlow}
-                    options={FLOW_TOGGLE_OPTIONS}
+                    options={SINGLE_FLOW_OPTIONS}
                     onChange={setSelectedFlow}
                 />
             </div>

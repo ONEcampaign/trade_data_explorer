@@ -276,7 +276,7 @@ export function plotSinglePartner(
     width: width,
     height: wide && !isPhone ? width * 0.25
         : isPhone ? width * 0.7
-            : width * 0.4,
+            : width * 0.5,
     marginTop: 25,
     marginRight: wide && !isPhone ? 50 : 25,
     marginBottom: 25,

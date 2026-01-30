@@ -1,6 +1,6 @@
 import {formatString, getUnitLabel} from "./utils.js"
 
-export function getTitle({country=null, partners=null, flow=null, group=null, mode}) {
+export function generateTitle({country=null, partners=null, flow=null, group=null, mode}) {
   if (mode === "plot") {
     if (Array.isArray(partners) && partners.length === 1) {
       return `${formatString(country, {genitive: true})} trade with ${partners[0]}`
@@ -28,7 +28,7 @@ export function getTitle({country=null, partners=null, flow=null, group=null, mo
   return ""
 }
 
-export function getSubtitle({partners=null, flow=null, category=null, timeRange=null, mode}) {
+export function generateSubtitle({partners=null, flow=null, category=null, timeRange=null, mode}) {
   const categoryString = category === "All" ? "All products" : category
   if (mode === "plot" && Array.isArray(partners) && partners.length === 1) {
     return {
@@ -58,7 +58,7 @@ export function getSubtitle({partners=null, flow=null, category=null, timeRange=
   return {type: "text", text: ""}
 }
 
-export function getFooterContent({unit=null, prices=null, country=null, flow=null, isMultiPartner=false}) {
+export function generateFooterText({unit=null, prices=null, country=null, flow=null, isMultiPartner=false}) {
   const unitLabel = getUnitLabel(unit, {})
   const sentences = [`All values in ${prices === "constant" ? "constant 2024" : "current"} ${unitLabel}.`]
   if (isMultiPartner) {

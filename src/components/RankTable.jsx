@@ -1,6 +1,6 @@
 import React from "npm:react"
 import {baseTable} from "../js/visuals.js"
-import {getTitle, getSubtitle, getFooterContent} from "../js/textGenerators.js"
+import {generateTitle, generateSubtitle, generateFooterText} from "../js/textGenerators.js"
 import {DownloadButton} from "./DownloadButton.js"
 import {logo} from "@one-data/observable-themes/use-images"
 
@@ -27,7 +27,7 @@ export function RankTable({
   const [width, setWidth] = React.useState(0)
   const normalizedPartners = React.useMemo(() => {
     if (Array.isArray(partners) && partners.length) {
-      return partners
+      return [...new Set(partners)].sort((a, b) => String(a).localeCompare(String(b)))
     }
     return ["the world"]
   }, [partners])
@@ -78,18 +78,18 @@ export function RankTable({
   const titleText = React.useMemo(
     () => {
       const titleMode = mode === "table-multi" ? "plot" : mode
-      return getTitle({country, partners: normalizedPartners, flow, group, mode: titleMode})
+      return generateTitle({country, partners: normalizedPartners, flow, group, mode: titleMode})
     },
     [country, normalizedPartners, flow, group, mode]
   )
 
   const subtitle = React.useMemo(
-    () => getSubtitle({category, timeRange, flow, mode}),
+    () => generateSubtitle({category, timeRange, flow, mode}),
     [category, timeRange, flow, mode]
   )
 
   const footerContent = React.useMemo(
-    () => getFooterContent({unit, prices, country, flow, isMultiPartner: isMultiPartner || multiMode}),
+    () => generateFooterText({unit, prices, country, flow, isMultiPartner: isMultiPartner}),
     [unit, prices, country, flow, isMultiPartner, multiMode]
   )
 
@@ -108,7 +108,7 @@ export function RankTable({
       <div className="relative min-h-[220px] flex-1 rounded-2xl bg-white p-3">
         <div ref={tableRef} className="min-h-[180px] overflow-auto" />
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/70">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/80 backdrop-blur-md">
             <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900" />
             <p className="text-sm font-medium text-slate-700">Loading data...</p>
           </div>

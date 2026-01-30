@@ -1,6 +1,6 @@
 import React from "npm:react"
 import {baseViz} from "../js/visuals.js"
-import {getTitle, getSubtitle, getFooterContent} from "../js/textGenerators.js"
+import {generateTitle, generateSubtitle, generateFooterText} from "../js/textGenerators.js"
 import {multiPalette} from "../js/colors.js"
 import {DownloadButton} from "./DownloadButton.js"
 import {logo} from "@one-data/observable-themes/use-images"
@@ -61,17 +61,17 @@ export function TradePlot({
   }, [data, unit, flow, width, normalizedPartners, wide])
 
   const titleText = React.useMemo(
-    () => getTitle({country, partners: normalizedPartners, flow, mode: "plot"}),
+    () => generateTitle({country, partners: normalizedPartners, flow, mode: "plot"}),
     [country, normalizedPartners, flow]
   )
 
   const subtitleStructure = React.useMemo(
-    () => getSubtitle({partners: normalizedPartners, flow, category, timeRange, mode: "plot"}),
+    () => generateSubtitle({partners: normalizedPartners, flow, category, timeRange, mode: "plot"}),
     [normalizedPartners, flow, category, timeRange]
   )
 
   const footerContent = React.useMemo(
-    () => getFooterContent({unit, prices, country, flow, isMultiPartner}),
+    () => generateFooterText({unit, prices, country, flow, isMultiPartner}),
     [unit, prices, country, flow, isMultiPartner]
   )
 
