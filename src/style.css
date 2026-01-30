@@ -1,4 +1,5 @@
 @import url("./styles/base.css");
 @import url("./styles/components/range-input.css");
 @import url("./styles/layout.css");
-@import url("./styles/components/plots-tables.css");
+@import url("styles/components/plots.css");
+@import url("styles/components/tables.css");
