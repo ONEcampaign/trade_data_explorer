@@ -178,7 +178,7 @@ export function DropdownMenu({
     overflow: "hidden"
   }
 
-  const baseButtonClasses = "flex w-full items-start justify-between gap-2 rounded-md border px-4 py-2 text-left"
+  const baseButtonClasses = "flex w-full items-start justify-between gap-2 rounded-md border px-4 py-2 text-left hover:cursor-pointer"
   const stateClasses = disabled
     ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400"
     : "border-slate-300 bg-white text-slate-900 hover:border-slate-400"
@@ -242,7 +242,7 @@ export function DropdownMenu({
                     type="button"
                     data-index={index}
                     style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
-                    className={`flex w-full justify-start px-4 py-2 text-md uppercase transition-colors 
+                    className={`flex w-full justify-start px-4 py-2 text-md uppercase transition-colors hover:cursor-pointer
                     ${
                       isSelected 
                           ? "font-bold"

@@ -1,6 +1,8 @@
 import React from "npm:react"
 import {baseViz} from "../js/visuals.js"
 import {getTitle, getSubtitle, getFooterContent} from "../js/textGenerators.js"
+import {multiPalette} from "../js/colors.js"
+import {DownloadButton} from "./DownloadButton.js"
 import {logo} from "@one-data/observable-themes/use-images"
 
 export function TradePlot({
@@ -13,10 +15,20 @@ export function TradePlot({
   prices,
   loading = false,
   error = null,
-  emptyMessage = "No data for the selected filters."
+  emptyMessage = "No data for the selected filters.",
+  onDownload,
+  partners = null,
+  isMultiPartner = false,
+  wide = true
 }) {
   const plotRef = React.useRef(null)
   const [width, setWidth] = React.useState(0)
+  const normalizedPartners = React.useMemo(() => {
+    if (Array.isArray(partners) && partners.length) {
+      return partners
+    }
+    return ["the rest of the world"]
+  }, [partners])
 
   React.useEffect(() => {
     const node = plotRef.current
@@ -38,7 +50,7 @@ export function TradePlot({
       node.innerHTML = ""
       return
     }
-    const plotNode = baseViz(data, [""], unit, flow, width, {wide: true})
+    const plotNode = baseViz(data, normalizedPartners, unit, flow, width, {wide})
     node.innerHTML = ""
     node.appendChild(plotNode)
     return () => {
@@ -46,28 +58,68 @@ export function TradePlot({
         plotNode.remove()
       }
     }
-  }, [data, unit, flow, width])
+  }, [data, unit, flow, width, normalizedPartners, wide])
 
   const titleText = React.useMemo(
-    () => getTitle({country, partners: ["the rest of the world"], flow, mode: "plot"}),
-    [country, flow]
+    () => getTitle({country, partners: normalizedPartners, flow, mode: "plot"}),
+    [country, normalizedPartners, flow]
   )
 
   const subtitleStructure = React.useMemo(
-    () => getSubtitle({partners: [""], flow, category, timeRange, mode: "plot"}),
-    [flow, category, timeRange]
+    () => getSubtitle({partners: normalizedPartners, flow, category, timeRange, mode: "plot"}),
+    [normalizedPartners, flow, category, timeRange]
   )
 
   const footerContent = React.useMemo(
-    () => getFooterContent({unit, prices, country, flow}),
-    [unit, prices, country, flow]
+    () => getFooterContent({unit, prices, country, flow, isMultiPartner}),
+    [unit, prices, country, flow, isMultiPartner]
   )
 
   const hasData = data.length > 0
+  const disableDownload = loading || error || !hasData
+  const partnerLegend = React.useMemo(() => {
+    if (!isMultiPartner) return []
+    const legendSource = (hasData
+      ? Array.from(new Set(data.map((row) => row?.partner).filter(Boolean)))
+      : Array.isArray(partners)
+        ? partners
+        : [])
+      .sort((a, b) => String(a).localeCompare(String(b)))
+
+    return legendSource.map((partner, index) => ({
+      partner,
+      color: multiPalette[index % multiPalette.length]
+    }))
+  }, [isMultiPartner, data, partners, hasData])
+
+  const coloredSubtitle = React.useMemo(() => {
+    if (!partnerLegend.length || subtitleStructure.type !== "text") return null
+    const baseText = subtitleStructure.text ?? ""
+    const separatorIndex = baseText.indexOf(";")
+    const trailing = separatorIndex >= 0 ? baseText.slice(separatorIndex) : ""
+    const prefix = flow === "exports" ? "To" : flow === "imports" ? "From" : "With"
+    return (
+      <p className="text-lg text-slate-500" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
+        {prefix}
+        {partnerLegend.map(({partner, color}, index) => {
+          const isLast = index === partnerLegend.length - 1
+          const needsComma = index > 0 && !isLast
+          const needsAnd = index > 0 && isLast
+          return (
+            <React.Fragment key={partner}>
+              {needsComma ? ", " : needsAnd ? " and " : " "}
+              <span style={{ color, fontWeight: 600 }}>{partner}</span>
+            </React.Fragment>
+          )
+        })}
+        {trailing}
+      </p>
+    )
+  }, [partnerLegend, subtitleStructure, flow])
 
   return (
     <div className="space-y-4">
-      <div className="mb-4 ">
+      <div>
         <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
           {titleText}
         </h2>
@@ -92,7 +144,9 @@ export function TradePlot({
             <span>{subtitleStructure.suffix}</span>
           </p>
         ) : (
-          <p className="text-sm text-slate-500">{subtitleStructure.text}</p>
+          coloredSubtitle ?? (
+            <p className="text-sm text-slate-500">{subtitleStructure.text}</p>
+          )
         )}
       </div>
       <div className="relative min-h-[260px] w-full rounded-2xl bg-white">
@@ -126,16 +180,21 @@ export function TradePlot({
             <p key={index}>{sentence}</p>
           ))}
         </div>
-        <div className="mt-4 flex items-center justify-end">
+        <div className="flex items-center justify-end">
           <a
             href="https://data.one.org/"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-opacity duration-200 hover:opacity-50"
           >
-            <img src={logo} alt="The ONE Campaign logo" className="h-6 w-auto" />
+            <img src={logo} alt="The ONE Campaign logo" className="h-5 w-auto" />
           </a>
         </div>
+      </div>
+      <div>
+        {onDownload && (
+          <DownloadButton onClick={onDownload} disabled={disableDownload} />
+        )}
       </div>
     </div>
   )

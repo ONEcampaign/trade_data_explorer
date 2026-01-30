@@ -63,7 +63,7 @@ export function ToggleSwitch({
           disabled={disabled}
           onClick={toggle}
           onKeyDown={handleKeyDown}
-          className={`relative h-6 w-12 rounded-full transition-colors ${
+          className={`relative h-6 w-12 rounded-full transition-colors hover:cursor-pointer ${
             disabled
               ? "cursor-not-allowed bg-slate-200"
               : "bg-slate-900"

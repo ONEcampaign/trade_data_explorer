@@ -1,6 +1,6 @@
 const NAV_ITEMS = [
   { id: "single-view", label: "SINGLE", href: "./" },
-  { id: "multi", label: "MULTI", href: "./multi" },
+  { id: "multi-view", label: "MULTI", href: "./multi" },
   { id: "faqs", label: "FAQs", href: "./faqs" }
 ]
 
