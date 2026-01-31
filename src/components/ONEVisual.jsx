@@ -32,9 +32,9 @@ export function ONEVisual({
       )
     : null
 
-  const handleDownload = () => {
+  const handleAction = (action) => {
     if (loading || error || empty) return
-    onDownload?.()
+    action?.()
   }
 
   return (
@@ -65,7 +65,7 @@ export function ONEVisual({
         )}
       </div>
       <div
-        className="mt-6 flex flex-col gap-4 text-xs text-slate-500 sm:flex-row sm:items-start sm:justify-between"
+        className="mt-6 flex flex-row items-start justify-between gap-4 text-xs text-slate-500"
         style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}
       >
         <div className="space-y-1">
@@ -79,20 +79,23 @@ export function ONEVisual({
           )}
           {note && <p>{note}</p>}
         </div>
-        <div className="flex items-center justify-end sm:justify-center">
+        <div className="flex items-center justify-end sm:justify-center gap-2 shrink-0">
           <a
             href="https://data.one.org/"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-opacity duration-200 hover:opacity-50"
           >
-            <img src={logo} alt="The ONE Campaign logo" className="h-5 w-auto" />
+            <img src={logo} alt="The ONE Campaign logo" className="h-5 w-5 object-contain" style={{ minWidth: "1rem" }} />
           </a>
         </div>
       </div>
       {onDownload && (
-        <div className="mt-4 flex justify-end">
-          <DownloadButton onClick={handleDownload} disabled={loading || empty || !!error} />
+        <div className="mt-4 flex justify-end border-t border-slate-200 pt-4">
+          <DownloadButton
+            onClick={() => handleAction(onDownload)}
+            disabled={loading || empty || !!error}
+          />
         </div>
       )}
     </section>
