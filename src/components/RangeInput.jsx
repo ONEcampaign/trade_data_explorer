@@ -38,7 +38,7 @@ export function RangeInput({
   const percent = (val) => ((val - min) / (max - min || 1)) * 100
 
   return (
-    <div className="range-input flex flex-col gap-3 bg-white max-w-2xl">
+    <div className="range-input flex w-full flex-col gap-3 bg-white max-w-2xl">
       {label && (
         <div
           className="flex items-center justify-between text-md tracking-wide text-slate-black"

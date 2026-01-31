@@ -81,8 +81,8 @@ const FAQ_SECTIONS = [
 
 function FAQSection({title, children}) {
     return (
-        <section className="my-6">
-            <h2 className="section-header text-2xl mb-2 font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
+        <section className="space-y-3">
+            <h2 className="section-header text-2xl font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
                 {title}
             </h2>
             <div className="space-y-4 text-base leading-relaxed text-slate-700" style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}>
@@ -95,9 +95,9 @@ function FAQSection({title, children}) {
 
 function App() {
     return (
-        <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+        <div className="mx-auto w-full max-w-4xl space-y-6 px-0 py-6 sm:space-y-8 sm:px-6 sm:py-8">
             <NavMenu currentPage="faqs" />
-            <section className="mx-auto max-w-2xl">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-8 sm:p-8">
                 {FAQ_SECTIONS.map((section) => (
                     <FAQSection key={section.title} title={section.title}>
                         {section.content}

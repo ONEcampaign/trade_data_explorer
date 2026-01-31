@@ -134,9 +134,9 @@ function App() {
     }, [tableData, selectedCountry, orderedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
 
     return (
-        <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-6 sm:space-y-8 sm:px-6 sm:py-8">
             <NavMenu currentPage="multi-view" />
-            <section className="p-6">
+            <section className="p-4 sm:p-6">
                 <div className="grid gap-6 md:grid-cols-[repeat(2,minmax(0,45%))] md:justify-between">
                     <div className="flex flex-col gap-6">
                         <DropdownMenu
@@ -179,10 +179,10 @@ function App() {
                             options={MULTI_FLOW_OPTIONS}
                             onChange={setSelectedFlow}
                             disabled={!isMultiPartner}
-                            disabledReason="Select more than one partner to filter trade flow"
+                            disabledReason="Select more than one country to filter trade flow"
                         />
                     </div>
-                    <div className="flex flex-col gap-6">
+                    <div className="md:col-span-2 flex justify-center">
                         <RangeInput
                             min={Number(maxTimeRange[0])}
                             max={Number(maxTimeRange[1])}
@@ -195,12 +195,12 @@ function App() {
                 </div>
             </section>
             {!hasPartners ? (
-                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-6 text-amber-900">
+                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-900 sm:p-6">
                     Select at least one partner to view data.
                 </div>
             ) : (
-                <div className="grid gap-6 lg:grid-cols-2">
-                    <section className="border-2 border-black bg-white p-6">
+                <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+                    <section className="border-2 border-black bg-white p-4 sm:p-6">
                         <TradePlot
                             data={plotData}
                             unit={selectedUnit}

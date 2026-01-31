@@ -89,12 +89,12 @@ export function RankTable({
   )
 
   const footerContent = React.useMemo(
-    () => generateFooterText({unit, prices, country, flow, isMultiPartner: isMultiPartner}),
+    () => generateFooterText({unit, prices, country, flow, isMultiPartner: isMultiPartner || multiMode}),
     [unit, prices, country, flow, isMultiPartner, multiMode]
   )
 
   return (
-    <section className="flex h-full flex-col gap-4 border-2 border-black bg-white p-6">
+    <section className="flex h-full w-full flex-col gap-4 border-2 border-black bg-white p-4 sm:p-6">
       <div>
         <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
           {titleText}
@@ -105,10 +105,10 @@ export function RankTable({
           </h3>
         )}
       </div>
-      <div className="relative min-h-[220px] flex-1 rounded-2xl bg-white p-3">
-        <div ref={tableRef} className="min-h-[180px] overflow-auto" />
+      <div className="relative min-h-[220px] flex-1 rounded-2xl bg-white p-3 sm:p-4">
+        <div ref={tableRef} className="min-h-[180px] max-w-full overflow-auto" />
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/80 backdrop-blur-md">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/85 backdrop-blur-xl">
             <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900" />
             <p className="text-sm font-medium text-slate-700">Loading data...</p>
           </div>
@@ -124,7 +124,7 @@ export function RankTable({
           </div>
         )}
       </div>
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col text-xs text-slate-500" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
           <p>
             Source: <a className="text-slate-800 underline" href={footerContent.source.href} target="_blank" rel="noopener noreferrer">{footerContent.source.label}</a>. {footerContent.source.publisher}.
@@ -133,7 +133,7 @@ export function RankTable({
             <p key={index}>{sentence}</p>
           ))}
         </div>
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end sm:justify-center">
           <a
             href="https://data.one.org/"
             target="_blank"

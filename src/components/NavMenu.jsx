@@ -7,7 +7,7 @@ const NAV_ITEMS = [
 export function NavMenu({ currentPage }) {
   return (
     <div
-      className="mt-4 mb-16 flex items-end justify-end gap-10 text-xl font-semibold"
+      className="mt-4 mb-12 flex flex-wrap justify-end gap-4 text-lg font-semibold sm:mb-16 sm:gap-10 sm:text-xl"
       style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
       aria-label="Primary"
     >

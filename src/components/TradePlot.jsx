@@ -118,7 +118,7 @@ export function TradePlot({
   }, [partnerLegend, subtitleStructure, flow])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div>
         <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
           {titleText}

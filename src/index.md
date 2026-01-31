@@ -103,9 +103,9 @@ function App() {
     }, [categoriesData, selectedCountry, selectedTimeRange, selectedFlow])
 
     return (
-        <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-6 sm:space-y-8 sm:px-6 sm:py-8">
             <NavMenu currentPage="single-view"/>
-            <section className="p-6">
+            <section className="p-4 sm:p-6 mb-6">
                 <div className="grid gap-6 md:grid-cols-2">
                     <div className="flex flex-col gap-6">
                         <DropdownMenu
@@ -135,7 +135,7 @@ function App() {
                             onChange={setSelectedPrices}
                         />
                     </div>
-                    <div className="flex flex-col gap-6">
+                    <div className="md:col-span-2 flex justify-center">
                         <RangeInput
                             min={Number(maxTimeRange[0])}
                             max={Number(maxTimeRange[1])}
@@ -147,7 +147,7 @@ function App() {
                     </div>
                 </div>
             </section>
-            <section className="border-2 border-black bg-white p-6">
+            <section className="border-2 border-black bg-white p-4 sm:p-6">
                 <TradePlot
                     data={worldTradeData}
                     unit={selectedUnit}
@@ -162,7 +162,7 @@ function App() {
                     onDownload={handlePlotDownload}
                 />
             </section>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 <ToggleSwitch
                     label="Trade flow"
                     value={selectedFlow}
@@ -170,7 +170,7 @@ function App() {
                     onChange={setSelectedFlow}
                 />
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 md:gap-6">
                 <RankTable
                     data={partnersData}
                     flow={selectedFlow}

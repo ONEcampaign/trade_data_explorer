@@ -11,7 +11,3 @@
     --size-xxl: calc(var(--base-size) * 3);
     --size-xxxl: calc(var(--base-size) * 4);
 }
-
-.card {
-    font-family: Colfax, Helvetica, sans-serif;
-}
