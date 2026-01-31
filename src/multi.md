@@ -53,7 +53,6 @@ function App() {
         if (!selectedPartners.length) {
             setPlotData([]);
             setTableData([]);
-            setAvailablePartners([]);
             setDataStatus({loading: false, error: null});
             return;
         }
