@@ -134,11 +134,11 @@ function App() {
     }, [tableData, selectedCountry, orderedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
 
     return (
-        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-6 sm:space-y-8 sm:px-6 sm:py-8">
+        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-4 sm:space-y-8 sm:px-6">
             <NavMenu currentPage="multi-view" />
             <section className="p-4 sm:p-6">
                 <div className="grid gap-6 md:grid-cols-[repeat(2,minmax(0,45%))] md:justify-between">
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col items-stretch gap-6">
                         <DropdownMenu
                             label="Country"
                             options={countryOptions}
@@ -154,7 +154,7 @@ function App() {
                             maxSelected={5}
                         />
                     </div>
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col items-stretch gap-6">
                         <DropdownMenu
                             label="Category"
                             options={MULTI_CATEGORY_OPTIONS}
@@ -199,9 +199,9 @@ function App() {
                     Select at least one partner to view data.
                 </div>
             ) : (
-                <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+                <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
                     <div className="border-2 border-black bg-white p-4 sm:p-6">
-                            <TradePlot
+                        <TradePlot
                             data={plotData}
                             unit={selectedUnit}
                             flow={selectedFlow}

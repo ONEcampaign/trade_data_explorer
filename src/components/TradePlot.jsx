@@ -24,7 +24,7 @@ export function TradePlot({
   const [width, setWidth] = React.useState(0)
   const normalizedPartners = React.useMemo(() => {
     if (Array.isArray(partners) && partners.length) {
-      return partners
+      return [...new Set(partners)].sort((a, b) => String(a).localeCompare(String(b)))
     }
     return ["the rest of the world"]
   }, [partners])

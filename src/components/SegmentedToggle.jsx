@@ -51,7 +51,7 @@ export function SegmentedToggle({
         </label>
       )}
       <div
-        className="inline-flex w-full gap-2 rounded-full border border-slate-900 bg-white p-1"
+        className="flex w-full items-stretch justify-between gap-1 rounded-full border border-slate-900 bg-white p-1"
       >
         {normalized.map((option, index) => {
           const isActive = option.value === activeValue
@@ -64,7 +64,7 @@ export function SegmentedToggle({
               disabled={disabled}
               aria-disabled={disabled}
               onClick={() => handleSelect(option.value)}
-              className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-wide transition ${
+              className={`flex-1 min-w-0 rounded-full px-2 py-2 text-xs font-semibold uppercase tracking-wide transition lg:px-4 lg:text-sm ${
                 disabled ? "cursor-not-allowed" : "hover:cursor-pointer"
               } focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 ${
                 isActive
@@ -84,7 +84,7 @@ export function SegmentedToggle({
     return (
       <div className={`${className} relative group`}>
         {renderToggle()}
-        <div className="pointer-events-none absolute -top-2 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-3 py-1 text-xs text-white opacity-0 shadow group-hover:block group-hover:opacity-100">
+            <div className="pointer-events-none absolute -top-2 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-3 py-1 text-xs text-white opacity-0 shadow group-hover:block group-hover:opacity-100">
           {disabledReason}
           <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
         </div>

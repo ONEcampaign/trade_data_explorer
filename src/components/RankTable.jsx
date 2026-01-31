@@ -88,7 +88,7 @@ export function RankTable({
   )
 
   const footerContent = React.useMemo(
-    () => generateFooterText({unit, prices, country, flow, isMultiPartner: isMultiPartner || multiMode}),
+    () => generateFooterText({unit, prices, country, flow, isMultiPartner: isMultiPartner}),
     [unit, prices, country, flow, isMultiPartner, multiMode]
   )
 
@@ -110,7 +110,7 @@ export function RankTable({
       emptyMessage={emptyMessage}
       onDownload={onDownload ? handleDownload : undefined}
     >
-      <div ref={tableRef} className="min-h-[180px] max-w-full overflow-auto" />
+      <div ref={tableRef} className="h-full w-full" />
     </ONEVisual>
   )
 }

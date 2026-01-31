@@ -103,11 +103,11 @@ function App() {
     }, [categoriesData, selectedCountry, selectedTimeRange, selectedFlow])
 
     return (
-        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-6 sm:space-y-8 sm:px-6 sm:py-8">
+        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-8 sm:space-y-8 sm:px-6 sm:py-4">
             <NavMenu currentPage="single-view"/>
             <section className="p-4 sm:p-6 mb-6">
                 <div className="grid gap-6 md:grid-cols-2">
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col items-stretch gap-6">
                         <DropdownMenu
                             label="Country"
                             options={countryOptions}
@@ -121,7 +121,7 @@ function App() {
                             onChange={setSelectedCategory}
                         />
                     </div>
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col items-stretch gap-6">
                         <DropdownMenu
                             label="Unit"
                             options={UNIT_OPTIONS}

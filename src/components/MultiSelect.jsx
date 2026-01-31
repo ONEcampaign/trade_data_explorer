@@ -89,16 +89,16 @@ export function MultiSelect({
   }
 
   return (
-    <div>
+    <div className="max-w-75">
       {label && (
         <label
-          className="mb-2 block text-md tracking-wide text-slate-black"
+          className="mb-1 block text-md tracking-wide text-slate-black"
           style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}
         >
           {label}
         </label>
       )}
-      <div className="rounded-2xl border border-slate-200 bg-white p-3">
+      <div className="rounded-md border border-slate-300 bg-white p-3">
         <div className="flex flex-wrap gap-2">
           {value.map((item) => (
             <span
@@ -126,7 +126,7 @@ export function MultiSelect({
           />
         </div>
         {filteredOptions.length > 0 && (
-          <ul className="mt-3 max-h-40 divide-y divide-slate-100 overflow-auto rounded-xl border border-slate-100">
+          <ul className="mt-3 max-h-40 divide-y divide-slate-100 overflow-auto rounded-md border border-slate-200">
             {filteredOptions.map((option) => {
               const optionDisabled = limitReached || option.disabled
               return (
