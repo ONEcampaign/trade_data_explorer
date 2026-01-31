@@ -1,8 +1,7 @@
 import React from "npm:react"
 import {baseTable} from "../js/visuals.js"
 import {generateTitle, generateSubtitle, generateFooterText} from "../js/textGenerators.js"
-import {DownloadButton} from "./DownloadButton.js"
-import {logo} from "@one-data/observable-themes/use-images"
+import {ONEVisual} from "./ONEVisual.js"
 
 export function RankTable({
   data = [],
@@ -93,62 +92,25 @@ export function RankTable({
     [unit, prices, country, flow, isMultiPartner, multiMode]
   )
 
+  const handleDownload = React.useCallback(() => {
+    if (!loading && hasRows) {
+      onDownload?.()
+    }
+  }, [loading, hasRows, onDownload])
+
   return (
-    <section className="flex h-full w-full flex-col gap-4 border-2 border-black bg-white p-4 sm:p-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
-          {titleText}
-        </h2>
-        {subtitle?.text && (
-          <h3 className="text-lg text-slate-600" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
-            {subtitle.text}
-          </h3>
-        )}
-      </div>
-      <div className="relative min-h-[220px] flex-1 rounded-2xl bg-white p-3 sm:p-4">
-        <div ref={tableRef} className="min-h-[180px] max-w-full overflow-auto" />
-        {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/85 backdrop-blur-xl">
-            <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900" />
-            <p className="text-sm font-medium text-slate-700">Loading data...</p>
-          </div>
-        )}
-        {!loading && error && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/70 text-sm text-red-600">
-            Unable to load data. Please try different filters.
-          </div>
-        )}
-        {!loading && !error && !hasRows && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-2xl text-sm text-slate-500">
-            {emptyMessage}
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col text-xs text-slate-500" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
-          <p>
-            Source: <a className="text-slate-800 underline" href={footerContent.source.href} target="_blank" rel="noopener noreferrer">{footerContent.source.label}</a>. {footerContent.source.publisher}.
-          </p>
-          {footerContent.sentences.map((sentence, index) => (
-            <p key={index}>{sentence}</p>
-          ))}
-        </div>
-        <div className="flex items-center justify-end sm:justify-center">
-          <a
-            href="https://data.one.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-opacity duration-200 hover:opacity-50"
-          >
-            <img src={logo} alt="The ONE Campaign logo" className="h-5 w-auto" />
-          </a>
-        </div>
-      </div>
-      {onDownload && (
-        <div>
-          <DownloadButton onClick={onDownload} disabled={!hasRows || loading} />
-        </div>
-      )}
-    </section>
+    <ONEVisual
+      title={titleText}
+      subtitle={subtitle?.text}
+      source={footerContent.source}
+      note={footerContent.sentences.join(" ")}
+      loading={loading}
+      error={error}
+      empty={!hasRows}
+      emptyMessage={emptyMessage}
+      onDownload={onDownload ? handleDownload : undefined}
+    >
+      <div ref={tableRef} className="min-h-[180px] max-w-full overflow-auto" />
+    </ONEVisual>
   )
 }

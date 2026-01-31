@@ -200,8 +200,8 @@ function App() {
                 </div>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 md:gap-6">
-                    <section className="border-2 border-black bg-white p-4 sm:p-6">
-                        <TradePlot
+                    <div className="border-2 border-black bg-white p-4 sm:p-6">
+                            <TradePlot
                             data={plotData}
                             unit={selectedUnit}
                             flow={selectedFlow}
@@ -217,25 +217,27 @@ function App() {
                             emptyMessage="No data for the selected filters."
                             onDownload={handlePlotDownload}
                         />
-                    </section>
-                    <RankTable
-                        data={tableData}
-                        flow={selectedFlow}
-                        mainColumn="category"
-                        mode="table-multi"
-                        country={selectedCountry}
-                        category={selectedCategory}
-                        timeRange={selectedTimeRange}
-                        unit={selectedUnit}
-                        prices={selectedPrices}
-                        partners={orderedPartners}
-                        isMultiPartner={isMultiPartner}
-                        multiMode={true}
-                        loading={loading}
-                        error={error}
-                        emptyMessage="No comparison data for the selected filters."
-                        onDownload={handleTableDownload}
-                    />
+                    </div>
+                    <div className="border-2 border-black bg-white p-4 sm:p-6">
+                        <RankTable
+                            data={tableData}
+                            flow={selectedFlow}
+                            mainColumn="category"
+                            mode="table-multi"
+                            country={selectedCountry}
+                            category={selectedCategory}
+                            timeRange={selectedTimeRange}
+                            unit={selectedUnit}
+                            prices={selectedPrices}
+                            partners={orderedPartners}
+                            isMultiPartner={isMultiPartner}
+                            multiMode={true}
+                            loading={loading}
+                            error={error}
+                            emptyMessage="No comparison data for the selected filters."
+                            onDownload={handleTableDownload}
+                        />
+                    </div>
                 </div>
             )}
         </div>

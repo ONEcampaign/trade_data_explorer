@@ -147,7 +147,7 @@ function App() {
                     </div>
                 </div>
             </section>
-            <section className="border-2 border-black bg-white p-4 sm:p-6">
+            <div className="border-2 border-black bg-white p-4 sm:p-6">
                 <TradePlot
                     data={worldTradeData}
                     unit={selectedUnit}
@@ -161,7 +161,7 @@ function App() {
                     emptyMessage="No data for the selected filters."
                     onDownload={handlePlotDownload}
                 />
-            </section>
+            </div>
             <div className="p-4 sm:p-6">
                 <ToggleSwitch
                     label="Trade flow"
@@ -171,38 +171,42 @@ function App() {
                 />
             </div>
             <div className="grid gap-4 md:grid-cols-2 md:gap-6">
-                <RankTable
-                    data={partnersData}
-                    flow={selectedFlow}
-                    mainColumn="partner"
-                    mode="table-top-partners"
-                    country={selectedCountry}
-                    category={selectedCategory}
-                    timeRange={selectedTimeRange}
-                    unit={selectedUnit}
-                    prices={selectedPrices}
-                    group="All countries"
-                    loading={loading}
-                    error={error}
-                    emptyMessage="No partner data for the selected filters."
-                    onDownload={handlePartnersDownload}
-                />
-                <RankTable
-                    data={categoriesData}
-                    flow={selectedFlow}
-                    mainColumn="category"
-                    mode="table-top-categories"
-                    country={selectedCountry}
-                    category={selectedCategory}
-                    timeRange={selectedTimeRange}
-                    unit={selectedUnit}
-                    prices={selectedPrices}
-                    group="All countries"
-                    loading={loading}
-                    error={error}
-                    emptyMessage="No category data for the selected filters."
-                    onDownload={handleCategoriesDownload}
-                />
+                <div className="border-2 border-black bg-white p-4 sm:p-6">
+                    <RankTable
+                        data={partnersData}
+                        flow={selectedFlow}
+                        mainColumn="partner"
+                        mode="table-top-partners"
+                        country={selectedCountry}
+                        category={selectedCategory}
+                        timeRange={selectedTimeRange}
+                        unit={selectedUnit}
+                        prices={selectedPrices}
+                        group="All countries"
+                        loading={loading}
+                        error={error}
+                        emptyMessage="No partner data for the selected filters."
+                        onDownload={handlePartnersDownload}
+                    />
+                </div>
+                <div className="border-2 border-black bg-white p-4 sm:p-6">
+                    <RankTable
+                        data={categoriesData}
+                        flow={selectedFlow}
+                        mainColumn="category"
+                        mode="table-top-categories"
+                        country={selectedCountry}
+                        category={selectedCategory}
+                        timeRange={selectedTimeRange}
+                        unit={selectedUnit}
+                        prices={selectedPrices}
+                        group="All countries"
+                        loading={loading}
+                        error={error}
+                        emptyMessage="No category data for the selected filters."
+                        onDownload={handleCategoriesDownload}
+                    />
+                </div>
             </div>
         </div>
     )
