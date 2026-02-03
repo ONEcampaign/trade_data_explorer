@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Explore trade data"
 requires-python = ">=3.13"
 dependencies = [
+    "bblocks-data-importers>=0.5.0",
     "bblocks-places>=0.0.4",
     "ftfy>=6.3.1",
     "oda-data>=2.2.2.post1",
