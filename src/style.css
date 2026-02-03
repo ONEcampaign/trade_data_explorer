@@ -1,5 +1,7 @@
-@import url("./styles/base.css");
-@import url("./styles/components/range-input.css");
+@import url("@one-data/observable-themes/styles/fonts.css");
+
 @import url("./styles/layout.css");
+
+@import url("./styles/components/range-input.css");
 @import url("styles/components/plots.css");
 @import url("styles/components/tables.css");
