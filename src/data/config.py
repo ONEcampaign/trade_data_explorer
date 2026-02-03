@@ -19,8 +19,7 @@ BASE_YEAR: int = 2024  # for currency conversions
 
 TIME_RANGE: list[int] = [2002, 2024]
 
-BACI_VERSION: str = "202601"
-
+HS_VERSION: str = "HS02"
 
 class PATHS:
     """Class to store the paths to the data."""
@@ -36,7 +35,5 @@ class PATHS:
 
     DATA = SRC / "data" / "raw_data"
     PYDEFLATE = DATA / "pydeflate"
-    BACI = DATA / f"BACI_HS02_V{BACI_VERSION}"
-    COUNTRY_CODES = BACI / f"country_codes_V{BACI_VERSION}.csv"
 
     COMPONENTS = SRC / "components"

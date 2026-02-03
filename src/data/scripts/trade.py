@@ -1,13 +1,11 @@
 import json
-from pathlib import Path
-
 import ftfy
-
 import pandas as pd
 
 from bblocks.places import resolve_places
+from bblocks.data_importers.baci.baci import BACI
 
-from src.data.config import BACI_VERSION, PATHS, TIME_RANGE, logger
+from src.data.config import HS_VERSION, PATHS, logger
 from src.data.scripts.helper_functions import (
     convert_values_to_units,
     write_partitioned_dataset,
@@ -21,8 +19,6 @@ from src.data.scripts.transformations import (
 
 def load_mappings() -> tuple[
     dict[str, str],
-    dict[str, str],
-    dict[str, str],
     dict[str, list[str]],
     dict[str, list[str]],
     pd.DataFrame,
@@ -34,15 +30,6 @@ def load_mappings() -> tuple[
     product_code_to_section = {
         code: category for category, codes in hs_dict.items() for code in codes
     }
-
-    country_codes = pd.read_csv(PATHS.COUNTRY_CODES)
-    country_codes["country_name"] = country_codes["country_name"].apply(ftfy.fix_text)
-    country_code_to_iso3 = dict(
-        zip(country_codes["country_code"], country_codes["country_iso3"])
-    )
-    country_iso3_to_name = dict(
-        zip(country_codes["country_iso3"], country_codes["country_name"])
-    )
 
     with open(PATHS.COUNTRY_GROUPS, "r", encoding="utf-8") as f:
         group_to_iso3_raw = json.load(f)
@@ -68,33 +55,32 @@ def load_mappings() -> tuple[
 
     return (
         product_code_to_section,
-        country_code_to_iso3,
-        country_iso3_to_name,
         group_to_iso3,
         iso3_to_groups,
         membership_df,
     )
 
 
-def filter_and_aggregate_data(
-    raw_df: pd.DataFrame,
+def import_transform_trade(
     product_code_to_section: dict[str, str],
-    country_code_to_iso3: dict[str, str]
 ) -> pd.DataFrame:
-    """Apply reshaping, filtering, and aggregation to a raw BACI dataframe."""
-    df = raw_df.rename(
-        columns={
-            "t": "year",
-            "i": "exporter",
-            "j": "importer",
-            "k": "product",
-            "v": "value",
-        }
-    )
+    """Import BACI data, add product, country mappings and reshape dataframe"""
 
-    df["category"] = df["product"].str[:2].map(product_code_to_section)
-    df["exporter_iso3"] = df["exporter"].map(country_code_to_iso3)
-    df["importer_iso3"] = df["importer"].map(country_code_to_iso3)
+    baci = BACI()
+
+    df = baci.get_data(hs_version=HS_VERSION)
+    lookup_df = baci.get_data(hs_version=HS_VERSION)
+    country_code_to_iso3 = lookup_df.set_index("country_code")["iso3_code"]
+
+    df["category"] = (
+        df["product_code"]
+        .astype(str)
+        .str.zfill(6)
+        .str[:2]
+        .map(product_code_to_section)
+    )
+    df["exporter_iso3"] = df["exporter_code"].map(country_code_to_iso3)
+    df["importer_iso3"] = df["importer_code"].map(country_code_to_iso3)
 
     df = (
         df.dropna(subset=["value"])
@@ -104,36 +90,8 @@ def filter_and_aggregate_data(
 
     df["value"] /= 1_000  # Convert from thousands to millions
 
-    return df
-
-
-def load_build_aggregated_trade(
-    product_code_to_section: dict[str, str],
-    country_code_to_iso3: dict[str, str]
-) -> pd.DataFrame:
-    """Load aggregated trade data from disk or build it from raw BACI files."""
-    output_path: Path = PATHS.DATA / f"trade_{TIME_RANGE[0]}_{TIME_RANGE[1]}.parquet"
-
-    if output_path.exists():
-        logger.info("Loading aggregated BACI data from %s", output_path)
-        return pd.read_parquet(output_path)
-
-    logger.info("Aggregating BACI data")
-    frames: list[pd.DataFrame] = []
-    for year in range(TIME_RANGE[0], TIME_RANGE[1] + 1):
-        raw_path = PATHS.BACI / f"BACI_HS02_Y{year}_V{BACI_VERSION}.csv"
-        raw_df = pd.read_csv(raw_path, dtype={"k": str})
-        frames.append(
-            filter_and_aggregate_data(
-                raw_df,
-                product_code_to_section,
-                country_code_to_iso3
-            )
-        )
-
-    aggregated = pd.concat(frames, ignore_index=True)
-    aggregated_wide = (
-        aggregated.pivot(
+    df_wide = (
+        df.pivot(
             index=["year", "exporter_iso3", "importer_iso3"],
             columns="category",
             values="value",
@@ -141,9 +99,8 @@ def load_build_aggregated_trade(
         .reset_index()
         .rename_axis(columns=None)
     )
-    logger.info("Saving aggregated BACI data to %s", output_path)
-    aggregated_wide.to_parquet(output_path, index=False, compression="snappy")
-    return aggregated_wide
+
+    return df_wide
 
 
 def process_trade_data() -> pd.DataFrame:
@@ -151,36 +108,33 @@ def process_trade_data() -> pd.DataFrame:
     logger.info("Processing trade data")
     (
         product_code_to_section,
-        country_code_to_iso3,
-        country_iso3_to_name,
         group_to_iso3,
         _iso3_to_groups,
         membership_df,
     ) = load_mappings()
 
-    aggregated_wide = load_build_aggregated_trade(
-        product_code_to_section,
-        country_code_to_iso3
+    df_wide = import_transform_trade(
+        product_code_to_section
     )
 
     base_cols = ["year", "exporter_iso3", "importer_iso3"]
 
-    aggregated = aggregated_wide.melt(
+    df = df_wide.melt(
         id_vars=base_cols,
         var_name="category",
         value_name="value",
         ignore_index=True,
     ).dropna(subset=["value"])
 
-    totals = (
-        aggregated.groupby(base_cols, as_index=False)["value"]
+    df_totals = (
+        df.groupby(base_cols, as_index=False)["value"]
         .sum()
         .assign(category="All products")
     )
 
-    aggregated = pd.concat([aggregated, totals], ignore_index=True)
+    df_full = pd.concat([df, df_totals], ignore_index=True)
 
-    trade_df = add_currencies_and_prices(aggregated, id_column="exporter_iso3")
+    trade_df = add_currencies_and_prices(df_full, id_column="exporter_iso3")
 
     missing_map = {
         "SCG": "Serbia and Montenegro",
