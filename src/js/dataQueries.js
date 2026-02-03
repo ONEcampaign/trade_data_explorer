@@ -603,7 +603,8 @@ export function multiQueries(country, partners, unit, prices, timeRange, categor
 
   return {
     plot: buildResult(buildMultiPlotData),
-    table: buildResult(buildMultiTableData)
+    table: buildResult(buildMultiTableData),
+    availablePartners: buildResult(buildAvailablePartners)
   };
 }
 
@@ -664,7 +665,7 @@ async function buildMultiContext(country, partners, unit, prices, timeRange, cat
 }
 
 async function fetchMultiRows(context) {
-  const {countryList, countrySQL, timeStart, timeEnd, partnersSet} = context;
+  const {countryList, countrySQL, timeStart, timeEnd} = context;
   if (!countryList.length) {
     return [];
   }
@@ -673,9 +674,6 @@ async function fetchMultiRows(context) {
   return rows.filter((row) => {
     const year = Number(row?.year);
     if (!Number.isFinite(year) || year < timeStart || year > timeEnd) {
-      return false;
-    }
-    if (!partnersSet.has(row?.partner)) {
       return false;
     }
     return true;
@@ -835,4 +833,14 @@ function buildMultiTableData(rows, context) {
   });
 
   return results;
+}
+
+function buildAvailablePartners(rows) {
+  const set = new Set();
+  for (const row of rows) {
+    if (row?.partner) {
+      set.add(row.partner);
+    }
+  }
+  return Array.from(set).sort((a, b) => String(a).localeCompare(String(b)));
 }

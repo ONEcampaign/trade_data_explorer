@@ -1,11 +1,11 @@
 import {toPng} from 'npm:html-to-image';
 import {utils, writeFile} from "npm:xlsx";
 
-export function downloadPNG(elementId, filename) {
-    const element = document.getElementById(elementId);
+export function downloadPNG(target, filename) {
+    const element = typeof target === "string" ? document.getElementById(target) : target
     if (!element) {
-        console.error(`Element with ID "${elementId}" not found.`);
-        return;
+        console.error("Element not found for PNG download.")
+        return
     }
 
     toPng(element, { pixelRatio: 2, backgroundColor: "white" })
