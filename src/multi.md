@@ -1,4 +1,5 @@
 ```js
+import "./js/embed.js"
 import * as React from "npm:react";
 import {NavMenu} from "./components/NavMenu.js";
 import {DropdownMenu} from "./components/DropdownMenu.js";
