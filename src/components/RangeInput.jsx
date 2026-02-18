@@ -41,8 +41,8 @@ export function RangeInput({
     <div className="range-input flex w-full flex-col gap-3 bg-white max-w-2xl">
       {label && (
         <div
-          className="flex items-center justify-between text-md tracking-wide text-slate-black"
-          style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}
+          className="flex items-center justify-between text-sm tracking-wide text-slate-black"
+          style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
         >
           <span>
             {label}

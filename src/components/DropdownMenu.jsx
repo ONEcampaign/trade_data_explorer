@@ -184,11 +184,11 @@ export function DropdownMenu({
     : "border-slate-300 bg-white text-slate-900 hover:border-slate-400"
 
   return (
-    <div className={`dropdown ${className} max-w-75`} ref={containerRef}>
+    <div className={`dropdown ${className} max-w-75 min-w-60`} ref={containerRef}>
       {label && (
         <label
-            className="mb-1 block text-md tracking-wide text-slate-black"
-            style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}
+            className="mb-1 block text-sm tracking-wide text-slate-black"
+            style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
         >
           {label}
         </label>

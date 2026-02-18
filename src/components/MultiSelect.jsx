@@ -92,8 +92,8 @@ export function MultiSelect({
     <div className="max-w-75">
       {label && (
         <label
-          className="mb-1 block text-md tracking-wide text-slate-black"
-          style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}
+          className="mb-1 block text-sm tracking-wide text-slate-black"
+          style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
         >
           {label}
         </label>
@@ -120,13 +120,13 @@ export function MultiSelect({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={limitReached ? "Limit reached" : placeholder}
+            placeholder={limitReached ? null : placeholder}
             disabled={limitReached}
-            className="flex-1 border-none bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+            className={limitReached ? "hidden" : "flex-1 border-none bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"}
           />
         </div>
         {filteredOptions.length > 0 && (
-          <ul className="mt-3 max-h-40 divide-y divide-slate-100 overflow-auto rounded-md border border-slate-200">
+          <ul className="mt-3 max-h-25 divide-y divide-slate-100 overflow-auto rounded-md border border-slate-200">
             {filteredOptions.map((option) => {
               const optionDisabled = limitReached || option.disabled
               return (
@@ -149,9 +149,6 @@ export function MultiSelect({
             })}
           </ul>
         )}
-        <div className="mt-2 text-xs text-slate-500" style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}>
-          {limitReached ? "" : `Select up to ${maxSelected} partners.`}
-        </div>
       </div>
     </div>
   )

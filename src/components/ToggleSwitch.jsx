@@ -42,8 +42,8 @@ export function ToggleSwitch({
     <div className={`toggle ${className}`}>
       {label && (
         <label
-            className="mb-2 block text-md tracking-wide text-slate-black"
-            style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}
+            className="mb-2 block text-sm tracking-wide text-slate-black"
+            style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
         >
           {label}
         </label>
