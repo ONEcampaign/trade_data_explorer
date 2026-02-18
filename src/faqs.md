@@ -14,26 +14,26 @@ const FAQ_SECTIONS = [
         title: "What is the Trade Explorer?",
         content: (
             <>
-                <p className="base-text">
-                    The <i>Trade Explorer</i> is a tool to help you analyze trade patterns for different countries across the world.
+                <p>
+                    The <i>Trade Explorer</i> is a data app to help you analyze trade patterns for different countries across the world.
                     It provides two options:
                 </p>
-                <p className="base-text">
-                    <b>Single Country</b> provides an overview of a country's trade position with the rest of the world.
+                <p>
+                    <b>Single Country</b> gives an overview of a country's trade position with the rest of the world.
                 </p>
-                <p className="base-text">
+                <p>
                     <b>Multi Country</b> lets you explore trade between a selected country and up to five trading partners simultaneously.
                 </p>
-                <p className="base-text">
+                <p>
                     All trade figures are presented from the selected country’s perspective. For example, if you choose Botswana, exports indicate goods and services
                     flowing out of Botswana to the selected partner, while imports represent inflows into Botswana. In this sense, exports are shown as positive values,
                     indicating revenue from outgoing goods and services, while imports are negative values, reflecting expenditures on incoming goods and services.
                 </p>
-                <p className="base-text">
+                <p>
                     If only one trading partner is selected, all trade flows (imports, exports and trade balance) will be shown. To allow for cleaner comparisons when
                     multiple partners are selected, you can only visualize a single trade flow at a time.
                 </p>
-                <p className="base-text">
+                <p>
                     To ensure that the data shown is accurate, certain options will be disabled depending on the selected <i>Country</i> and <i>Partner(s)</i>. For instance,
                     if France is selected as <i>Country</i>, you won't be able to select France, EU27 countries, G7 countries or G20 countries as <i>Partner</i>, as these options overlap with France.
                 </p>
@@ -44,7 +44,7 @@ const FAQ_SECTIONS = [
         title: "Where does the data come from?",
         content: (
             <>
-                <p className="base-text">
+                <p>
                     Trade data is retrieved from CEPII's{' '}
                     <a href="https://cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37">BACI database</a>{' '}
                     and grouped by product category according to{' '}
@@ -58,11 +58,11 @@ const FAQ_SECTIONS = [
         title: "How is the data transformed?",
         content: (
             <>
-                <p className="base-text">
+                <p>
                     The original trade figures are presented in current US Dollars. They are converted into other currencies and constant prices via{' '}
                     <a href="https://github.com/jm-rivera/pydeflate">pydeflate</a>.
                 </p>
-                <p className="base-text">
+                <p>
                     The data preparation scripts are located in the <span style={{fontFamily: "monospace"}}>src/data</span>{' '}
                     directory of the project's <a href="https://github.com/ONEcampaign/trade-explorer">GitHub repository</a>.
                 </p>
@@ -72,7 +72,7 @@ const FAQ_SECTIONS = [
     {
         title: "Who should I contact for questions and suggestions?",
         content: (
-            <p className="base-text">
+            <p>
                 Please refer your comments to miguel.haroruiz[at]one[dot]org.
             </p>
         )
@@ -82,10 +82,10 @@ const FAQ_SECTIONS = [
 function FAQSection({title, children}) {
     return (
         <section className="space-y-3">
-            <h2 className="section-header text-2xl font-semibold text-slate-900" style={{ fontFamily: "Italian plate, Helvetica, sans-serif" }}>
+            <h2 className="font-bold text-xl mt-8 mb-2">
                 {title}
             </h2>
-            <div className="space-y-4 text-base leading-relaxed text-slate-700" style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}>
+            <div className="space-y-4">
                 {children}
             </div>
         </section>
@@ -95,10 +95,12 @@ function FAQSection({title, children}) {
 
 function App() {
     return (
-        <div className="mx-auto w-full max-w-4xl space-y-6 px-0 py-6 sm:space-y-8 sm:px-6 sm:py-8">
+        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-14 sm:space-y-12 sm:px-6 sm:py-10">
             <NavMenu currentPage="faqs" />
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-8 sm:p-8">
-                {FAQ_SECTIONS.map((section) => (
+            <section
+                className="space-y-4 px-4 py-2 text-md sm:px-6 lg:px-25 lg:py-10 [&_a]:text-indigo-500 [&_a]:underline [&_a:hover]:underline [&_a:focus]:underline [&_a:visited]:text-indigo-500"
+                style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
+            >                {FAQ_SECTIONS.map((section) => (
                     <FAQSection key={section.title} title={section.title}>
                         {section.content}
                     </FAQSection>
