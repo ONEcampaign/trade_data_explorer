@@ -1,7 +1,7 @@
 const NAV_ITEMS = [
   { id: "single-view", label: "SINGLE", href: "./" },
-  { id: "multi-view", label: "MULTI", href: "./multi" },
-  { id: "faqs", label: "FAQs", href: "./faqs" }
+  { id: "multi-view", label: "MULTI", href: "./multi.html" },
+  { id: "faqs", label: "FAQs", href: "./faqs.html" }
 ]
 
 export function NavMenu({ currentPage }) {
