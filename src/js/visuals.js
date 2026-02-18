@@ -9,7 +9,6 @@ import {
   formatString,
   getUnitLabel,
   getLimits,
-  reshapeDataForTable,
 } from "./utils.js";
 
 
@@ -19,57 +18,209 @@ function getSingleColor(key) {
     return index !== -1 ? singlePalette.range[index] : null; // Return color if found, otherwise null
 };
 
-export function rankTable(data, flow, mainColumn, width) {
+export function baseTable(data, flow, mainColumn, width, {partners = [], multiMode = false} = {}) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return html`<div></div>`;
+  }
 
-    const tableData = data
-        .filter(row => row.flow === flow)
-        .map(row => ({
-            [mainColumn]: row[mainColumn], // Extract dynamically
-            [flow]: row.value // Dynamically set column name
-        }));
+  if (!multiMode) {
+    return renderSingleFlowTable(data, flow, mainColumn, width);
+  }
 
-    const values = tableData.map(row => row[flow]);
-    const limits = [Math.min(...values), Math.max(...values)];
+  const filtered = data.filter((row) => row?.category && row.category !== "All products");
+  if (filtered.length === 0) {
+    return html`<div></div>`;
+  }
 
-    const alignmentMapping = {
-        partner: "left",
-        imports: "right",
-        exports: "left",
-    };
+  const normalizedPartners = partners.length
+    ? partners
+    : Array.from(new Set(filtered.map((row) => row.partner).filter(Boolean)));
 
-    return Inputs.table(tableData, {
-        sort: flow,
-        reverse: flow ===  "exports",
-        format: {
-            category: (x) => x, // General formatter for groupKey (year or category)
-            ...Object.fromEntries(
-                Object.keys(tableData[0]) // Get all columns
-                    .filter((key) => key !== mainColumn)
-                    .map((key, index) => [
-                        key,
-                        sparkbar(
-                            getSingleColor(key),
-                            alignmentMapping[key],
-                            limits[0],
-                            limits[1],
-                        ),
-                    ]),
-            ),
-        },
-        header: {
-            ...Object.fromEntries(
-                Object.keys(tableData[0]).map((key) => [key, formatString(key, {})]),
-            ),
-        },
-        align: alignmentMapping,
-        width: width,
-        // height: width * 0.4,
-    });
+  if (normalizedPartners.length <= 1) {
+    const targetPartner = normalizedPartners[0] ?? filtered[0]?.partner;
+    const partnerRows = filtered.filter((row) => row.partner === targetPartner);
+    return renderSinglePartnerCategoryTable(partnerRows, width);
+  }
 
+  return renderMultiPartnerCategoryTable(filtered, normalizedPartners, flow, width);
+}
+
+function renderSingleFlowTable(data, flow, mainColumn, width) {
+  const tableData = data
+    .filter((row) => row?.flow === flow && row?.value != null && row?.[mainColumn])
+    .map((row) => ({
+      [mainColumn]: row[mainColumn],
+      [flow]: row.value
+    }));
+
+  if (!tableData.length) {
+    return html`<div></div>`;
+  }
+
+  const limits = getLimits(tableData);
+  const [minLimit, maxLimit] = normalizeLimits(limits);
+  const numericColumns = Object.keys(tableData[0]).filter((key) => key !== mainColumn);
+  const align = {
+    [mainColumn]: "left",
+    [flow]: flow === "imports" ? "right" : flow === "exports" ? "left" : "center"
+  };
+
+  return Inputs.table(tableData, {
+    sort: numericColumns[0] ?? mainColumn,
+    reverse: flow === "exports",
+    format: {
+      [mainColumn]: (value) => value,
+      ...Object.fromEntries(
+        numericColumns.map((key) => [
+          key,
+          sparkbar(
+            getSingleColor(key) ?? customPalette.darkGrey,
+            align[key] ?? "center",
+            minLimit,
+            maxLimit
+          )
+        ])
+      )
+    },
+    header: Object.fromEntries(
+      Object.keys(tableData[0]).map((key) => [key, formatString(key, {})])
+    ),
+    align,
+    width
+  });
+}
+
+function renderSinglePartnerCategoryTable(rows, width) {
+  const tableData = rows
+    .filter((row) => row?.category)
+    .map((row) => ({
+      category: row.category,
+      imports: row.imports ?? null,
+      exports: row.exports ?? null,
+      balance: row.balance ?? null
+    }));
+
+  if (!tableData.length) {
+    return html`<div></div>`;
+  }
+
+  const limits = getLimits(tableData);
+  const [minLimit, maxLimit] = normalizeLimits(limits);
+  const numericColumns = ["imports", "exports", "balance"];
+  const align = {
+    category: "left",
+    imports: "right",
+    exports: "left",
+    balance: "center"
+  };
+
+  return Inputs.table(tableData, {
+    sort: "exports",
+    reverse: true,
+    format: {
+      category: (value) => value,
+      ...Object.fromEntries(
+        numericColumns.map((key) => [
+          key,
+          sparkbar(
+            getSingleColor(key) ?? customPalette.darkGrey,
+            align[key] ?? "center",
+            minLimit,
+            maxLimit
+          )
+        ])
+      )
+    },
+    header: Object.fromEntries(
+      Object.keys(tableData[0]).map((key) => [key, formatString(key, {})])
+    ),
+    align,
+    width
+  });
+}
+
+function renderMultiPartnerCategoryTable(rows, partners, flow, width) {
+  const categories = Array.from(
+    new Set(rows.map((row) => row.category).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b));
+
+  const tableData = categories
+    .map((category) => {
+      const entry = {category};
+      let hasValue = false;
+      for (const partner of partners) {
+        const match = rows.find((row) => row.partner === partner && row.category === category);
+        const value = match ? getValueForFlow(match, flow) : null;
+        entry[partner] = value;
+        if (value != null) {
+          hasValue = true;
+        }
+      }
+      return hasValue ? entry : null;
+    })
+    .filter(Boolean);
+
+  if (!tableData.length) {
+    return html`<div></div>`;
+  }
+
+  const limits = getLimits(tableData.map((row) => {
+    const values = {...row};
+    delete values.category;
+    return values;
+  }));
+  const [minLimit, maxLimit] = normalizeLimits(limits);
+  const align = Object.fromEntries([
+    ["category", "left"],
+    ...partners.map((partner) => [partner, "center"])
+  ]);
+
+  return Inputs.table(tableData, {
+    sort: partners[0],
+    reverse: flow === "exports",
+    format: {
+      category: (value) => value,
+      ...Object.fromEntries(
+        partners.map((partner, index) => [
+          partner,
+          sparkbar(
+            multiPalette[index % multiPalette.length],
+            "center",
+            minLimit,
+            maxLimit
+          )
+        ])
+      )
+    },
+    header: Object.fromEntries(
+      ["category", ...partners].map((key) => [key, formatString(key, {})])
+    ),
+    align,
+    width
+  });
+}
+
+function getValueForFlow(row, flow) {
+  if (flow === "imports") {
+    return row.imports ?? null;
+  }
+  if (flow === "exports") {
+    return row.exports ?? null;
+  }
+  return row.balance ?? null;
+}
+
+function normalizeLimits([minValue, maxValue]) {
+  const min = Number.isFinite(minValue) ? minValue : 0;
+  const max = Number.isFinite(maxValue) ? maxValue : 0;
+  if (min === 0 && max === 0) {
+    return [-1, 1];
+  }
+  return [min, max];
 }
 
 
-export function tradePlot(data, partners, unit, flow, width, {wide= false}) {
+export function baseViz(data, partners, unit, flow, width, {wide= false}) {
 
     const isPhone = window.screen.width < 800
 
@@ -109,20 +260,6 @@ export function tradePlot(data, partners, unit, flow, width, {wide= false}) {
 }
 
 
-export function tradeTable(data, flow, width) {
-
-    const isPhone = window.screen.width < 800
-
-    const isMulti = new Set(data.map(row => row.partner)).size > 1;
-
-    if (isMulti) {
-        return tableMulti(data, flow, width, {isPhone});
-    } else {
-        return tableSingle(data, width, {isPhone});
-    }
-}
-
-
 export function plotSinglePartner(
     data, unit, width,
     {
@@ -139,11 +276,11 @@ export function plotSinglePartner(
     width: width,
     height: wide && !isPhone ? width * 0.25
         : isPhone ? width * 0.7
-            : width * 0.4,
+            : width * 0.5,
     marginTop: 25,
     marginRight: wide && !isPhone ? 50 : 25,
     marginBottom: 25,
-    marginLeft: wide && !isPhone ? 125 : 75,
+    marginLeft: wide && !isPhone ? 125 : 50,
     x: {
       inset: 10,
       label: null,
@@ -243,7 +380,7 @@ export function plotMultiPartner(
     marginTop: 25,
     marginRight: 25,
     marginBottom: 25,
-    marginLeft: 75,
+    marginLeft: 50,
     x: {
       inset: 10,
       label: null,
@@ -313,96 +450,6 @@ export function plotMultiPartner(
         }),
       ),
     ],
-  });
-}
-
-
-export function tableSingle(data, width, {isPhone= false}) {
-
-  const alignmentMapping = {
-    category: "left",
-    imports: "right",
-    exports: "left",
-    balance: "center",
-  };
-
-  const tableData = data.map(row =>
-      Object.fromEntries(
-          Object.entries(row).filter(([key]) => key in alignmentMapping) // Keep only specified keys
-      )
-  );
-
-  const limits = getLimits(tableData);
-
-    return Inputs.table(tableData, {
-    sort: "exports", // Sort by year or exports
-    reverse: true, // Reverse sort only for category-based tables
-    format: {
-      category: (x) => x, // General formatter for groupKey (year or category)
-      ...Object.fromEntries(
-        Object.keys(tableData[0]) // Get all columns
-          .filter((key) => key !== "category") // Exclude the grouping key (year or category)
-          .map((key, index) => [
-            key,
-            sparkbar(
-              singlePalette.range[index], // Cycle through colors
-              alignmentMapping[key],
-              limits[0],
-              limits[1],
-            ),
-          ]),
-      ),
-    },
-    header: {
-      ...Object.fromEntries(
-        Object.keys(tableData[0]).map((key) => [key, formatString(key, {})]),
-      ),
-    },
-    align: alignmentMapping,
-    width: width,
-    height: isPhone ? width * 0.7 : width * 0.4,
-  });
-}
-
-
-export function tableMulti(data, flow, width, {isPhone = false}) {
-
-  const tableData = reshapeDataForTable(data, flow, "category");
-
-  const countries = Object.keys(tableData[0]).filter(
-    (key) => key !== "category",
-  );
-
-  const limits = getLimits(tableData);
-
-  const colors = multiPalette;
-
-  return Inputs.table(tableData, {
-    format: {
-      category: (x) => x, // General formatter for groupKey (year or category)
-      ...Object.fromEntries(
-        countries.map((key, index) => [
-          key,
-          sparkbar(
-            colors[index % colors.length], // Cycle through colors
-            "center",
-            limits[0],
-            limits[1],
-          ),
-        ]),
-      ),
-    },
-    header: {
-      category: formatString("category", {}),
-    },
-    align: {
-      category: "left",
-      ...Object.fromEntries(
-        countries.map((key) => [key, "center"]), // Corrected syntax here
-      ),
-    },
-    width: width,
-    height: isPhone ? width * 0.7 : width * 0.4,
   });
 }
 
@@ -507,7 +554,7 @@ function hex2rgb(hex, alpha = 1) {
   // Remove the hash if present
   hex = hex.replace(/^#/, "");
 
-  // Parse the hex into RGB components
+  // Parse the hex into RGB js
   let r,
     g,
     b,
@@ -528,6 +575,6 @@ function hex2rgb(hex, alpha = 1) {
     throw new Error("Invalid hex format. Use #RRGGBB or #RRGGBBAA.");
   }
 
-  // Combine the RGBA components into a CSS string
+  // Combine the RGBA js into a CSS string
   return `rgba(${r}, ${g}, ${b}, ${a * alpha})`;
 }

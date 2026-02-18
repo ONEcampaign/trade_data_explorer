@@ -15,7 +15,13 @@
     max-width: none !important;
 }
 
+.embedded #observablehq-center {
+    height: auto !important;
+    overflow: visible !important;
+}
+
 .embedded,
 .embedded body {
     background: white !important;
+    overflow: hidden !important;
 }
