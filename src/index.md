@@ -103,7 +103,7 @@ function App() {
     }, [categoriesData, selectedCountry, selectedTimeRange, selectedFlow])
 
     return (
-        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-8 sm:space-y-8 sm:px-6 sm:py-4">
+        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-14 sm:space-y-12 sm:px-6 sm:py-10">
             <NavMenu currentPage="single-view"/>
             <section className="p-4 sm:p-6 mb-6">
                 <div className="grid gap-6 md:grid-cols-2">

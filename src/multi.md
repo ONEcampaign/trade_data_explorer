@@ -133,7 +133,7 @@ function App() {
     }, [tableData, selectedCountry, orderedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
 
     return (
-        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-4 sm:space-y-8 sm:px-6">
+        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-14 sm:space-y-12 sm:px-6 sm:py-10">
             <NavMenu currentPage="multi-view" />
             <section className="p-4 sm:p-6">
                 <div className="grid gap-6 md:grid-cols-[repeat(2,minmax(0,45%))] md:justify-between">
