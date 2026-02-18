@@ -5,3 +5,5 @@
 @import url("./styles/components/range-input.css");
 @import url("styles/components/plots.css");
 @import url("styles/components/tables.css");
+
+@import url("./styles/embed.css");
