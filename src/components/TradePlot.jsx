@@ -1,6 +1,6 @@
 import React from "npm:react"
 import {baseViz} from "../js/visuals.js"
-import {generateTitle, generateSubtitle, generateFooterText} from "../js/textGenerators.js"
+import {generateTitle, generateSubtitle, generateFooterText, generateFileName} from "../js/textGenerators.js"
 import {multiPalette} from "../js/colors.js"
 import {ONEVisual} from "./ONEVisual.js"
 
@@ -72,6 +72,11 @@ export function TradePlot({
   const footerContent = React.useMemo(
     () => generateFooterText({unit, prices, country, flow, isMultiPartner}),
     [unit, prices, country, flow, isMultiPartner]
+  )
+
+  const plotFileName = React.useMemo(
+    () => generateFileName({country, partners: normalizedPartners, category, flow, timeRange, mode: "plot"}),
+    [country, normalizedPartners, category, flow, timeRange]
   )
 
   const hasData = data.length > 0
@@ -149,6 +154,7 @@ export function TradePlot({
       empty={!hasData}
       emptyMessage={emptyMessage}
       onDownload={onDownload ? handleDownload : undefined}
+      plotFileName={plotFileName}
     >
       <div ref={plotRef} className="h-full w-full" />
     </ONEVisual>

@@ -1,16 +1,15 @@
 [aria-label="x-axis tick label"],
 [aria-label="y-axis label"] text,
 [aria-label="y-axis tick label"] {
-    font-size: 10rem;
-    color: var(--midGrey);
+    font-size: .75rem;
+    color: black;
     font-family: 'Italian Plate', Helvetica, sans-serif;
 }
 
 [aria-label="y-grid"] {
-    color: var(--midGrey);
+    color: black;
 }
 
 [aria-label="tip"] text {
-    font-family: 'Italian Plate', Helvetica, sans-serif;
-    font-size: 10rem;
+    font-size: 0.75rem;
 }
