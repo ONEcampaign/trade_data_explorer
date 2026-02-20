@@ -134,10 +134,10 @@ function App() {
     }, [tableData, selectedCountry, orderedPartners, selectedCategory, selectedFlow, selectedTimeRange]);
 
     return (
-        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-14 sm:space-y-12 sm:px-6 sm:py-10">
+        <div className="mx-auto w-full space-y-10 px-6 py-10">
             <NavMenu currentPage="multi-view" />
             <section className="p-4 sm:p-6">
-                <div className="grid gap-6 md:grid-cols-[repeat(2,minmax(0,45%))] md:justify-between">
+                <div className="grid gap-6 md:grid-cols-3">
                     <div className="flex flex-col items-stretch gap-6">
                         <DropdownMenu
                             label="Country"
@@ -156,12 +156,6 @@ function App() {
                     </div>
                     <div className="flex flex-col items-stretch gap-6">
                         <DropdownMenu
-                            label="Category"
-                            options={MULTI_CATEGORY_OPTIONS}
-                            value={selectedCategory}
-                            onChange={setSelectedCategory}
-                        />
-                        <DropdownMenu
                             label="Unit"
                             options={UNIT_OPTIONS}
                             value={selectedUnit}
@@ -173,16 +167,14 @@ function App() {
                             options={PRICE_TOGGLE_OPTIONS}
                             onChange={setSelectedPrices}
                         />
-                        <SegmentedToggle
-                            label="Trade flow"
-                            value={selectedFlow}
-                            options={MULTI_FLOW_OPTIONS}
-                            onChange={setSelectedFlow}
-                            disabled={!isMultiPartner}
-                            disabledReason="Select more than one country to filter trade flow"
-                        />
                     </div>
-                    <div className="md:col-span-2 flex justify-center">
+                    <div className="flex flex-col items-stretch gap-6">
+                        <DropdownMenu
+                            label="Category"
+                            options={MULTI_CATEGORY_OPTIONS}
+                            value={selectedCategory}
+                            onChange={setSelectedCategory}
+                        />
                         <RangeInput
                             min={Number(maxTimeRange[0])}
                             max={Number(maxTimeRange[1])}
@@ -190,6 +182,14 @@ function App() {
                             label="Time range"
                             value={selectedTimeRange}
                             onChange={setSelectedTimeRange}
+                        />
+                        <SegmentedToggle
+                            label="Trade flow"
+                            value={selectedFlow}
+                            options={MULTI_FLOW_OPTIONS}
+                            onChange={setSelectedFlow}
+                            disabled={!isMultiPartner}
+                            disabledReason="Select more than one country to filter trade flow"
                         />
                     </div>
                 </div>
@@ -200,7 +200,7 @@ function App() {
                 </div>
             ) : (
                 <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-                    <div className="border-2 border-black bg-white p-4 sm:p-6">
+                    <div className="border border-black bg-white p-4 sm:p-6">
                         <TradePlot
                             data={plotData}
                             unit={selectedUnit}
@@ -218,7 +218,7 @@ function App() {
                             onDownload={handlePlotDownload}
                         />
                     </div>
-                    <div className="border-2 border-black bg-white p-4 sm:p-6">
+                    <div className="border border-black bg-white p-4 sm:p-6">
                         <RankTable
                             data={tableData}
                             flow={selectedFlow}

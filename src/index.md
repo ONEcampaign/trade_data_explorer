@@ -104,10 +104,10 @@ function App() {
     }, [categoriesData, selectedCountry, selectedTimeRange, selectedFlow])
 
     return (
-        <div className="mx-auto w-full max-w-6xl space-y-6 px-0 py-14 sm:space-y-12 sm:px-6 sm:py-10">
+        <div className="mx-auto w-full space-y-10 px-6 py-10">
             <NavMenu currentPage="single-view"/>
             <section className="p-4 sm:p-6 mb-6">
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-3">
                     <div className="flex flex-col items-stretch gap-6">
                         <DropdownMenu
                             label="Country"
@@ -136,7 +136,7 @@ function App() {
                             onChange={setSelectedPrices}
                         />
                     </div>
-                    <div className="md:col-span-2 flex justify-center">
+                    <div className="flex flex-col items-stretch gap-6">
                         <RangeInput
                             min={Number(maxTimeRange[0])}
                             max={Number(maxTimeRange[1])}
@@ -148,7 +148,7 @@ function App() {
                     </div>
                 </div>
             </section>
-            <div className="border-2 border-black bg-white p-4 sm:p-6">
+            <div className="border border-black bg-white p-4 sm:p-6">
                 <TradePlot
                     data={worldTradeData}
                     unit={selectedUnit}
@@ -172,7 +172,7 @@ function App() {
                 />
             </div>
             <div className="grid gap-4 md:grid-cols-2 md:gap-6">
-                <div className="border-2 border-black bg-white p-4 sm:p-6">
+                <div className="border border-black bg-white p-4 sm:p-6">
                     <RankTable
                         data={partnersData}
                         flow={selectedFlow}
@@ -190,7 +190,7 @@ function App() {
                         onDownload={handlePartnersDownload}
                     />
                 </div>
-                <div className="border-2 border-black bg-white p-4 sm:p-6">
+                <div className="border border-black bg-white p-4 sm:p-6">
                     <RankTable
                         data={categoriesData}
                         flow={selectedFlow}

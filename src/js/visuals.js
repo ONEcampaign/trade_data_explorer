@@ -282,7 +282,7 @@ export function plotSinglePartner(
     marginBottom: 25,
     marginLeft: wide && !isPhone ? 125 : 50,
     x: {
-      inset: 10,
+      inset: 5,
       label: null,
       tickSize: 0,
       ticks: 5,
@@ -382,7 +382,7 @@ export function plotMultiPartner(
     marginBottom: 25,
     marginLeft: 50,
     x: {
-      inset: 10,
+      inset: 5,
       label: null,
       tickSize: 0,
       ticks: 5,
