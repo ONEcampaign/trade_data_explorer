@@ -1,3 +1,9 @@
+export function plotHeight(width) {
+  if (width < 480) return Math.round(width * 0.6)
+  if (width < 768) return Math.round(width * 0.45)
+  return Math.round(width * 0.35)
+}
+
 export function formatString(str, {
     capitalize=true,
     inSentence=false,
@@ -41,37 +47,6 @@ export function formatString(str, {
 }
 
 
-export function formatValue(value) {
-  // Handle null values
-  if (value == null) {
-    return { value: 0, label: "0" };
-  }
-
-  // Round to two decimal places for the value
-  const roundedValue = parseFloat(value.toFixed(2));
-
-  // Determine the label
-  let label;
-  if (value === 0) {
-    label = "0";
-  } else if (value > -0.01 && value < 0.01) {
-    if (value > -0.01) {
-      label = "> -0.01";
-    } else {
-      label = "< 0.01";
-    }
-  } else {
-    label = roundedValue.toLocaleString("en-US", {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 2,
-    });
-  }
-
-  // Return both rounded value and label
-  return { value: roundedValue, label };
-}
-
-
 export function getLimits(data) {
   let minValue = Infinity;
   let maxValue = -Infinity;
@@ -92,22 +67,3 @@ export function getLimits(data) {
 }
 
 
-export function getUnitLabel(unit, { long = true, value = "" }) {
-  let prefix = "";
-  let suffix = long ? "million" : "M";
-
-  if (unit === "usd") {
-    prefix = "US$";
-  } else if (unit === "eur") {
-    prefix = "€";
-  } else if (unit === "cad") {
-    prefix = "CA$";
-  } else if (unit === "gbp") {
-    prefix = "£";
-  }
-
-  if (value === "") {
-    return `${prefix} ${suffix}`;
-  }
-  return `${prefix}${value} ${suffix}`;
-}

@@ -10,8 +10,9 @@ export const PRICE_TOGGLE_OPTIONS = [
   {label: "Current", value: "current"}
 ]
 
-export const SINGLE_FLOW_OPTIONS = [
+export const FLOW_OPTIONS = [
   {label: "Imports", value: "imports"},
+  {label: "Balance", value: "balance"},
   {label: "Exports", value: "exports"}
 ]
 

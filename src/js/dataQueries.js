@@ -342,13 +342,19 @@ function aggregatePartners(rows, context) {
     partnerFilterSet
   } = context;
   const isAllCategory = isAllCategorySelection(category);
-  const multiplier = flow === "imports" ? -1 : 1;
   const yearsLabel = `${timeStart}-${timeEnd}`;
 
   const totals = new Map();
   for (const row of rows) {
-    if (row?.flow !== flow) {
-      continue;
+    const rowFlow = row?.flow;
+    let rowMult;
+    if (flow === "balance") {
+      if (rowFlow === "exports") rowMult = 1;
+      else if (rowFlow === "imports") rowMult = -1;
+      else continue;
+    } else {
+      if (rowFlow !== flow) continue;
+      rowMult = flow === "imports" ? -1 : 1;
     }
     const partner = row?.partner;
     if (!partner) {
@@ -364,13 +370,12 @@ function aggregatePartners(rows, context) {
     if (contribution == null) {
       continue;
     }
-    totals.set(partner, (totals.get(partner) ?? 0) + contribution);
+    totals.set(partner, (totals.get(partner) ?? 0) + contribution * rowMult);
   }
 
   const results = [];
   for (const [partner, total] of totals.entries()) {
-    const rawValue = total == null ? null : total * multiplier;
-    const value = rawValue == null ? null : normalizeValue(rawValue);
+    const value = total == null ? null : normalizeValue(total);
     if (value == null) {
       continue;
     }
@@ -400,12 +405,18 @@ function aggregateCategories(rows, context) {
     partnerFilterSet
   } = context;
   const yearsLabel = `${timeStart}-${timeEnd}`;
-  const multiplier = flow === "imports" ? -1 : 1;
 
   const totals = new Map();
   for (const row of rows) {
-    if (row?.flow !== flow) {
-      continue;
+    const rowFlow = row?.flow;
+    let rowMult;
+    if (flow === "balance") {
+      if (rowFlow === "exports") rowMult = 1;
+      else if (rowFlow === "imports") rowMult = -1;
+      else continue;
+    } else {
+      if (rowFlow !== flow) continue;
+      rowMult = flow === "imports" ? -1 : 1;
     }
     if (!row?.category || row.category === "All products") {
       continue;
@@ -417,13 +428,12 @@ function aggregateCategories(rows, context) {
     if (contribution == null) {
       continue;
     }
-    totals.set(row.category, (totals.get(row.category) ?? 0) + contribution);
+    totals.set(row.category, (totals.get(row.category) ?? 0) + contribution * rowMult);
   }
 
   const results = [];
   for (const [categoryName, total] of totals.entries()) {
-    const rawValue = total == null ? null : total * multiplier;
-    const value = rawValue == null ? null : normalizeValue(rawValue);
+    const value = total == null ? null : normalizeValue(total);
     if (value == null) {
       continue;
     }
@@ -439,6 +449,79 @@ function aggregateCategories(rows, context) {
   }
 
   results.sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+  return results;
+}
+
+function aggregatePartnersAllFlows(rows, context) {
+  const {unit, prices, category, partnerFilterSet} = context;
+  const isAllCategory = isAllCategorySelection(category);
+
+  const totals = new Map();
+  for (const row of rows) {
+    const partner = row?.partner;
+    if (!partner) continue;
+    if (!isAllCategory && row?.category !== category) continue;
+    if (partnerFilterSet && !partnerFilterSet.has(partner)) continue;
+
+    const contribution = getValueForUnit(row, unit, prices);
+    if (contribution == null) continue;
+
+    let entry = totals.get(partner);
+    if (!entry) {
+      entry = {exports: 0, imports: 0};
+      totals.set(partner, entry);
+    }
+
+    if (row?.flow === "exports") entry.exports += contribution;
+    else if (row?.flow === "imports") entry.imports += contribution;
+  }
+
+  const results = [];
+  for (const [partner, {exports: exp, imports: imp}] of totals.entries()) {
+    results.push({
+      partner,
+      imports: normalizeValue(imp * -1),
+      exports: normalizeValue(exp),
+      balance: normalizeValue(exp - imp),
+    });
+  }
+
+  results.sort((a, b) => (b.exports ?? 0) - (a.exports ?? 0));
+  return results;
+}
+
+function aggregateCategoriesAllFlows(rows, context) {
+  const {unit, prices, partnerFilterSet} = context;
+
+  const totals = new Map();
+  for (const row of rows) {
+    if (!row?.category || row.category === "All products") continue;
+    if (partnerFilterSet && !partnerFilterSet.has(row?.partner)) continue;
+
+    const contribution = getValueForUnit(row, unit, prices);
+    if (contribution == null) continue;
+
+    let entry = totals.get(row.category);
+    if (!entry) {
+      entry = {exports: 0, imports: 0};
+      totals.set(row.category, entry);
+    }
+
+    if (row?.flow === "exports") entry.exports += contribution;
+    else if (row?.flow === "imports") entry.imports += contribution;
+  }
+
+  const results = [];
+  for (const [categoryName, {exports: exp, imports: imp}] of totals.entries()) {
+    results.push({
+      category: categoryName,
+      imports: normalizeValue(imp * -1),
+      exports: normalizeValue(exp),
+      balance: normalizeValue(exp - imp),
+    });
+  }
+
+  results.sort((a, b) => (b.exports ?? 0) - (a.exports ?? 0));
   return results;
 }
 
@@ -578,8 +661,8 @@ export function singleQueries(country, unit, prices, timeRange, category, flow, 
   });
 
   return {
-    partners: buildResult(aggregatePartners),
-    categories: buildResult(aggregateCategories),
+    partners: buildResult(aggregatePartnersAllFlows),
+    categories: buildResult(aggregateCategoriesAllFlows),
     worldTrade: buildResult(aggregateWorldTrade)
   };
 }
