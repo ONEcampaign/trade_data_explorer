@@ -5,7 +5,22 @@ import ftfy
 
 import pandas as pd
 
-from bblocks.places import resolve_places
+from bblocks.places.resolver import PlaceResolver
+
+# Import PlaceResolver directly rather than via bblocks.places (which triggers a
+# module-level PlaceResolver(dc_instance="datacommons.one.org") that probes the
+# private instance without an API key and 403s in CI).  Pointing the embedded DC
+# client at the public instance skips that validation ping; the iso3→name lookups
+# we need are resolved from the bundled concordance table without any DC call.
+_resolver = PlaceResolver(
+    concordance_table="default",
+    custom_disambiguation="default",
+    dc_entity_type="Country",
+    dc_api_settings={"dc_instance": "datacommons.org"},
+)
+
+def resolve_places(places, *, from_type=None, to_type="dcid", not_found="raise"):
+    return _resolver.resolve_places(places, from_type=from_type, to_type=to_type, not_found=not_found)
 
 from src.data.config import BACI_VERSION, PATHS, TIME_RANGE, logger
 from src.data.scripts.helper_functions import (
