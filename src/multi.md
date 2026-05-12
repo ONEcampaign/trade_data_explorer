@@ -229,9 +229,9 @@ function App() {
             </div>
 
             {!hasPartners ? (
-                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-900 sm:p-6">
-                    Select at least one partner to view data.
-                </div>
+                <p className="plain-text flex px-6 py-10 items-center justify-center text-center text-lg text-slate-500">
+                    Select at least one indicator.
+                </p>    
             ) : (
                 <div className="grid gap-10 lg:grid-cols-2">
                     <ONEVisual

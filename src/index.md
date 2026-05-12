@@ -247,7 +247,7 @@ function App() {
                 </ONEVisual>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+            <div className="grid gap-10 lg:grid-cols-2">
                 <ONEVisual
                     title={`${formatString(selectedCountry, {genitive:true})} top trading partners`}
                     subtitle={partnersSubtitle.text}
