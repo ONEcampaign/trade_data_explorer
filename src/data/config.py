@@ -39,4 +39,4 @@ class PATHS:
     BACI = DATA / f"BACI_HS02_V{BACI_VERSION}"
     COUNTRY_CODES = BACI / f"country_codes_V{BACI_VERSION}.csv"
 
-    COMPONENTS = SRC / "components"
+    JS_COMPONENTS = SRC / "js"
