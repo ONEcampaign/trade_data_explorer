@@ -3,22 +3,26 @@
   "private": true,
   "scripts": {
     "clean": "rimraf src/.observablehq/cache",
-    "build": "export PYTHONPATH=$(pwd) && observable build",
-    "dev": "export PYTHONPATH=$(pwd) && observable preview",
-    "deploy": "export PYTHONPATH=$(pwd) && observable deploy",
+    "tw:build": "tailwindcss -i ./src/tailwind.input.css -o ./src/tailwind.generated.css --minify",
+    "tw:dev": "tailwindcss -i ./src/tailwind.input.css -o ./src/tailwind.generated.css --watch",
+    "build": "export PYTHONPATH=$(pwd) && npm run tw:build && observable build",
+    "dev": "export PYTHONPATH=$(pwd) && npm run tw:build && concurrently \"npm run tw:dev\" \"observable preview\"",
+    "deploy": "export PYTHONPATH=$(pwd) && npm run tw:build && observable deploy",
     "observable": "observable",
     "preinstall": "pip install uv --upgrade && pip uninstall opencv-python",
     "install": "uv sync"
   },
   "dependencies": {
     "@observablehq/framework": "^1.13.3",
-    "@one-data/observable-themes": "^0.6.7",
+    "@one-data/observable-themes": "^0.9.6",
     "d3": "^7.9.0",
     "d3-dsv": "^3.0.1",
     "d3-time-format": "^4.1.0",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "rimraf": "^5.0.5"
   },
   "engines": {
