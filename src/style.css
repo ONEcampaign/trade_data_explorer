@@ -1,9 +1,19 @@
-@import url("@one-data/observable-themes/styles/fonts.css");
+@import "@one-data/observable-themes/styles/index.css";
+@import "./tailwind.generated.css";
 
-@import url("./styles/layout.css");
+/* Chart text colours */
+.plot-title,
+.plot-subtitle {
+  color: #000000;
+}
 
-@import url("./styles/components/range-input.css");
-@import url("styles/components/plots.css");
-@import url("styles/components/tables.css");
+.plot-note {
+  color: #3d3d3d;
+}
 
-@import url("./styles/embed.css");
+[aria-label="x-axis tick label"],
+[aria-label="y-axis label"] text,
+[aria-label="y-axis tick label"],
+[aria-label="y-grid"] {
+  color: #3d3d3d;
+}
