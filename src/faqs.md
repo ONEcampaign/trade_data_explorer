@@ -1,8 +1,9 @@
 ```js
-import "./js/embed.js"
 import * as React from "npm:react";
-import {NavMenu} from "./components/NavMenu.js";
+import {Header} from "npm:@one-data/observable-themes/ui";
+import { APP_TITLE, NAV_ITEMS } from "./js/config.js"
 import {setCustomColors} from "./js/colors.js";
+import { isEmbedded } from "npm:@one-data/observable-themes/utils"
 ```
 
 ```js
@@ -74,7 +75,7 @@ const FAQ_SECTIONS = [
         title: "Who should I contact for questions and suggestions?",
         content: (
             <p>
-                Please refer your comments to miguel.haroruiz[at]one[dot]org.
+                Please refer your comments to <a href="mailto:miguel.haroruiz@one.org">Miguel Haro Ruiz</a>.
             </p>
         )
     }
@@ -96,8 +97,8 @@ function FAQSection({title, children}) {
 
 function App() {
     return (
-        <div className="mx-auto w-full space-y-10 px-6 py-10">
-            <NavMenu currentPage="faqs" />
+        <div className="mx-auto space-y-12 px-4 py-10 sm:px-8 sm:py-16 lg:px-12 lg:py-20">
+            <Header appTitle={APP_TITLE} navItems={NAV_ITEMS} currentPage="faqs"/>
             <section
                 className="max-w-4xl mx-auto space-y-4 text-md [&_a]:text-indigo-500 [&_a]:underline [&_a:hover]:underline [&_a:focus]:underline [&_a:visited]:text-indigo-500"
                 style={{ fontFamily: "Colfax, Helvetica, sans-serif" }}
