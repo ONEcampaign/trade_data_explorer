@@ -2,7 +2,7 @@ import {icon} from "@one-data/observable-themes/brand";
 
 export default {
   title: "Trade Explorer",
-  head: `<link rel="icon" href=${icon} type="image/png" sizes="32x32">`,
+  head: `<link rel="icon" href=${icon}>`,
 
   base: "/trade-explorer",
   preserveExtension: true,
