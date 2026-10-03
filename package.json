@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@observablehq/framework": "^1.13.3",
-    "@one-data/observable-themes": "^0.9.6",
+    "@one-data/observable-themes": "^0.9.9",
     "d3": "^7.9.0",
     "d3-dsv": "^3.0.1",
     "d3-time-format": "^4.1.0",
